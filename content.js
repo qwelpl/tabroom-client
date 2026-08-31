@@ -94,7 +94,7 @@ if (document.readyState === 'loading') {
 // Data path: /{uid}/competitors/{noteKey}, /{uid}/judges/{noteKey}
 
 const FB_DB = 'https://tabroom-client-default-rtdb.firebaseio.com';
-const FB_API_KEY = 'REPLACE_WITH_YOUR_FIREBASE_WEB_API_KEY';
+const FB_API_KEY = 'AIzaSyAYyuRx4SVQLpyYGhAuCN_UT1QpMmMzxd0';
 const FB_APP_VER = 'tr-notes-v1'; // bump to force new accounts if needed
 
 function dbNormKey(name) { return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_'); }
