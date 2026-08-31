@@ -1,6 +1,9 @@
 /* Tabroom Minimalist Light Theme */
 
-:root {
+/* ===== THEME VARIABLES ===== */
+
+/* Default / Cool clean */
+body.tr-cool, body:not(.tr-warm):not(.tr-indigo) {
   --t-bg: #f8fafc;
   --t-white: #ffffff;
   --t-border: #e2e8f0;
@@ -17,6 +20,46 @@
   --t-green-bg: #f0fdf4;
   --t-orange: #ea580c;
   --t-blue-bg: #eff6ff;
+}
+
+/* Warm minimal */
+body.tr-warm {
+  --t-bg: #faf8f5;
+  --t-white: #ffffff;
+  --t-border: #e8e3dd;
+  --t-border-faint: #f0ece8;
+  --t-text: #1c1917;
+  --t-muted: #78716c;
+  --t-accent: #0f766e;
+  --t-accent-dark: #0d6b63;
+  --t-hover: #f0fdfa;
+  --t-row: #faf8f5;
+  --t-red: #dc2626;
+  --t-red-bg: #fef2f2;
+  --t-green: #16a34a;
+  --t-green-bg: #f0fdf4;
+  --t-orange: #ea580c;
+  --t-blue-bg: #f0fdfa;
+}
+
+/* Soft indigo */
+body.tr-indigo {
+  --t-bg: #f5f3ff;
+  --t-white: #ffffff;
+  --t-border: #ddd6fe;
+  --t-border-faint: #ede9fe;
+  --t-text: #1e1b4b;
+  --t-muted: #7c7aad;
+  --t-accent: #4f46e5;
+  --t-accent-dark: #4338ca;
+  --t-hover: #eef2ff;
+  --t-row: #f5f3ff;
+  --t-red: #dc2626;
+  --t-red-bg: #fef2f2;
+  --t-green: #16a34a;
+  --t-green-bg: #f0fdf4;
+  --t-orange: #ea580c;
+  --t-blue-bg: #eef2ff;
 }
 
 /* ===== BASE ===== */
@@ -191,6 +234,34 @@ div.menu .sidenote a {
 div.menu .sidenote select,
 div.menu .sidenote .select2-container {
   width: 100% !important;
+}
+
+/* Reset ALL tabroom colored classes inside sidenotes */
+.sidenote a.dkblue, .sidenote a.dkgreen, .sidenote a.dkred,
+.sidenote a.blue, .sidenote a.green, .sidenote a.red,
+.sidenote a.orange, .sidenote a.gray, .sidenote a.grey,
+.sidenote a.yellow, .sidenote a.ltyellow, .sidenote a.ltyellownohover,
+.sidenote a.liblrow, .sidenote a.libl, .sidenote a.ligrnrow,
+.sidenote a.white, .sidenote a.plain, .sidenote a.hover,
+.sidenote div.dkblue, .sidenote div.dkgreen, .sidenote div.ligrnrow,
+.sidenote div.liblrow, .sidenote div.libl, .sidenote div.ltyellow,
+.sidenote div.blue, .sidenote div.green, .sidenote div.yellow,
+.sidenote span.dkblue, .sidenote span.dkgreen, .sidenote span.ligrnrow {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: var(--t-accent) !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+.sidenote a.dkblue:hover, .sidenote a.dkgreen:hover,
+.sidenote a.blue:hover, .sidenote a.green:hover,
+.sidenote a.liblrow:hover, .sidenote a.ligrnrow:hover,
+.sidenote a.ltyellow:hover, .sidenote a.yellow:hover,
+.sidenote a.orange:hover, .sidenote a.gray:hover {
+  background: var(--t-hover) !important;
+  color: var(--t-accent-dark) !important;
+  border-radius: 4px !important;
 }
 
 /* ===== HIDE ADS ===== */
@@ -688,6 +759,71 @@ button.notfirst:hover,
 a.printbutton:hover {
   background: var(--t-bg) !important;
   border-color: var(--t-muted) !important;
+}
+
+/* High-specificity overrides for tabroom's div.main context */
+div.main a.buttonwhite,
+div.main span.buttonwhite {
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  color: var(--t-text) !important;
+}
+div.main a.buttonwhite:hover,
+div.main span.buttonwhite:hover {
+  background: var(--t-bg) !important;
+  border-color: #cbd5e1 !important;
+  color: var(--t-text) !important;
+}
+div.main a.buttonwhite.invert,
+div.main span.buttonwhite.invert {
+  background: var(--t-accent) !important;
+  border-color: var(--t-accent) !important;
+  color: #ffffff !important;
+}
+div.main a.buttonwhite.bluetext,
+div.main span.buttonwhite.bluetext {
+  color: var(--t-accent) !important;
+  border-color: #bfdbfe !important;
+  background: #eff6ff !important;
+}
+div.main a.buttonwhite.redtext,
+div.main span.buttonwhite.redtext {
+  color: var(--t-red) !important;
+  border-color: #fecaca !important;
+  background: #fef2f2 !important;
+}
+div.main a.buttonblue,
+div.main span.buttonblue {
+  background: var(--t-accent) !important;
+  border: 1px solid var(--t-accent) !important;
+  color: #ffffff !important;
+}
+div.main a.buttonblue:hover,
+div.main span.buttonblue:hover {
+  background: var(--t-accent-dark) !important;
+  border-color: var(--t-accent-dark) !important;
+}
+div.main a.buttonred,
+div.main span.buttonred {
+  background: var(--t-red) !important;
+  border: 1px solid var(--t-red) !important;
+  color: #ffffff !important;
+}
+div.main a.buttonred:hover,
+div.main span.buttonred:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
+}
+div.main a.submit,
+div.main button.submit {
+  background: var(--t-accent) !important;
+  border: 1px solid var(--t-accent) !important;
+  color: #ffffff !important;
+}
+div.main a.submit:hover,
+div.main button.submit:hover {
+  background: var(--t-accent-dark) !important;
+  border-color: var(--t-accent-dark) !important;
 }
 
 /* ===== FORM CONTROLS ===== */

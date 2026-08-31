@@ -5,7 +5,7 @@
 }
 
 body {
-  width: 240px;
+  width: 260px;
   background: #f8fafc;
   color: #0f172a;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
@@ -16,7 +16,7 @@ body {
   padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .header {
@@ -25,7 +25,6 @@ body {
   gap: 2px;
   padding-bottom: 10px;
   border-bottom: 1px solid #e2e8f0;
-  margin-bottom: 4px;
 }
 
 .eyebrow {
@@ -39,7 +38,64 @@ body {
 .title {
   font-size: 17px;
   font-weight: 700;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #94a3b8;
+}
+
+.theme-grid {
+  display: flex;
+  gap: 8px;
+}
+
+.swatch-label {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.swatch-label input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2.5px solid transparent;
+  transition: border-color 0.12s, transform 0.1s;
+  display: block;
+}
+
+.swatch.warm    { background: linear-gradient(135deg, #faf8f5 50%, #0f766e 50%); }
+.swatch.cool    { background: linear-gradient(135deg, #f8fafc 50%, #2563eb 50%); }
+.swatch.indigo  { background: linear-gradient(135deg, #f8f7ff 50%, #4f46e5 50%); }
+
+.swatch-label input:checked ~ .swatch {
+  border-color: #0f172a;
+  transform: scale(1.05);
+}
+
+.swatch-name {
+  font-size: 11px;
+  font-weight: 500;
+  color: #475569;
+}
+
+.swatch-label input:checked ~ .swatch ~ .swatch-name {
   color: #0f172a;
+  font-weight: 700;
 }
 
 .row {
@@ -51,7 +107,6 @@ body {
   border-radius: 8px;
   padding: 10px 12px;
   cursor: pointer;
-  user-select: none;
 }
 
 .row span {
