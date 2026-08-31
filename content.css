@@ -1013,6 +1013,38 @@ a { color: var(--t-accent) !important; }
   font-family: inherit !important;
 }
 
+/* ===== PRINT/EXPORT BUTTON HARD OVERRIDE ===== */
+/* Must be last — beats all redtext/greentext specificity */
+body button.printbutton,
+body button.notfirst.printbutton,
+body button.printbutton.buttonwhite,
+body button.printbutton.redtext,
+body button.printbutton.greentext,
+body button.printbutton.bluetext,
+body button.printbutton.redtext.buttonwhite,
+body button.printbutton.greentext.buttonwhite,
+body button.notfirst.printbutton.redtext,
+body button.notfirst.printbutton.greentext,
+body button.notfirst.printbutton.redtext.buttonwhite,
+body button.notfirst.printbutton.greentext.buttonwhite {
+  background: var(--t-white) !important;
+  background-color: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  color: var(--t-muted) !important;
+}
+
+body button.printbutton:hover,
+body button.notfirst.printbutton:hover,
+body button.printbutton.redtext:hover,
+body button.printbutton.greentext:hover,
+body button.printbutton.redtext.buttonwhite:hover,
+body button.printbutton.greentext.buttonwhite:hover {
+  background: var(--t-bg) !important;
+  background-color: var(--t-bg) !important;
+  border-color: #cbd5e1 !important;
+  color: var(--t-text) !important;
+}
+
 /* ===== COMPACT MODE ===== */
 body.tr-compact table th,
 body.tr-compact table td {
