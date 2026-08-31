@@ -80,13 +80,16 @@ if (document.readyState === 'loading') {
   highlightWinningRows();
 }
 
-// ===== NOTES + OPPONENT PERFORMANCE =====
-
 // ===== NOTES DATABASE =====
-// Storage: Firebase Realtime Database, keyed by Tabroom email
-// Path: /{emailKey}/{type}/{noteKey}
+// Firebase Realtime Database + Anonymous Auth (REST, no SDK)
+// Required Firebase setup:
+//   1. Authentication → Sign-in method → Anonymous → Enable
+//   2. Realtime Database → Rules → { ".read": "auth != null", ".write": "auth != null" }
+//   3. Replace FB_API_KEY below with your Web API Key (Project Settings → General)
+// Data path: /{emailKey}/competitors/{noteKey}, /{emailKey}/judges/{noteKey}
 
-const FB_URL = 'https://tabroom-client-default-rtdb.firebaseio.com';
+const FB_DB = 'https://tabroom-client-default-rtdb.firebaseio.com';
+const FB_API_KEY = 'REPLACE_WITH_YOUR_FIREBASE_WEB_API_KEY';
 
 function dbNormKey(name) { return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_'); }
 
@@ -111,65 +114,91 @@ function getEmailKey() {
   return _emailKey;
 }
 
-function fbPath(type, key) {
-  const base = `${FB_URL}/${getEmailKey()}/${type}`;
-  return key ? `${base}/${key}.json` : `${base}.json`;
+// Auth token cache (in-memory + chrome.storage.local for persistence)
+let _token = null;
+let _tokenExpiry = 0;
+
+async function getToken() {
+  if (_token && Date.now() < _tokenExpiry - 60_000) return _token;
+
+  const { tr_fb_auth: stored } = await chrome.storage.local.get('tr_fb_auth');
+
+  if (stored?.refresh) {
+    try {
+      const r = await fetch(
+        `https://securetoken.googleapis.com/v1/token?key=${FB_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: stored.refresh })
+        }
+      );
+      if (r.ok) {
+        const d = await r.json();
+        _token = d.id_token;
+        _tokenExpiry = Date.now() + Number(d.expires_in) * 1000;
+        await chrome.storage.local.set({ tr_fb_auth: { token: _token, refresh: d.refresh_token, expiry: _tokenExpiry } });
+        return _token;
+      }
+    } catch (_) {}
+  }
+
+  // Anonymous sign-in
+  const r = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ returnSecureToken: true })
+    }
+  );
+  const d = await r.json();
+  if (!r.ok || d.error) throw new Error(d?.error?.message || `Auth HTTP ${r.status}`);
+  _token = d.idToken;
+  _tokenExpiry = Date.now() + Number(d.expiresIn) * 1000;
+  await chrome.storage.local.set({ tr_fb_auth: { token: _token, refresh: d.refreshToken, expiry: _tokenExpiry } });
+  return _token;
+}
+
+async function fbUrl(type, key) {
+  const token = await getToken();
+  const base = `${FB_DB}/${getEmailKey()}/${type}`;
+  return (key ? `${base}/${key}.json` : `${base}.json`) + `?auth=${token}`;
 }
 
 function migrateOldNotes() {
-  // Migrate from chrome.storage.sync (old format: tr_nc_* / tr_nj_*)
   chrome.storage.sync.get(null, all => {
     const migrants = { competitors: {}, judges: {} };
     const keysToRemove = [];
-
     for (const [k, v] of Object.entries(all)) {
       if (k.startsWith('tr_nc_') && v?.name) {
-        const noteKey = k.split('_').slice(3).join('_');
-        migrants.competitors[noteKey] = v;
+        migrants.competitors[k.split('_').slice(3).join('_')] = v;
         keysToRemove.push(k);
       } else if (k.startsWith('tr_nj_') && v?.name) {
-        const noteKey = k.split('_').slice(3).join('_');
-        migrants.judges[noteKey] = v;
+        migrants.judges[k.split('_').slice(3).join('_')] = v;
         keysToRemove.push(k);
       }
     }
-
-    const hasData = Object.keys(migrants.competitors).length + Object.keys(migrants.judges).length > 0;
-    if (!hasData) return;
-
-    const uploads = [];
+    let pending = 0;
     for (const [type, db] of Object.entries(migrants)) {
       for (const [key, val] of Object.entries(db)) {
-        uploads.push(fetch(fbPath(type, key), {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(val)
-        }));
+        pending++;
+        dbSetEntry(type, key, val, () => { if (--pending === 0) chrome.storage.sync.remove(keysToRemove); });
       }
     }
-
-    Promise.all(uploads).then(() => {
-      chrome.storage.sync.remove(keysToRemove);
-    });
   });
 
-  // Also migrate chrome.storage.local (even older format)
   chrome.storage.local.get({ tr_db_v1_competitors: {}, tr_db_v1_judges: {} }, old => {
     const types = { competitors: old.tr_db_v1_competitors, judges: old.tr_db_v1_judges };
-    const uploads = [];
+    let pending = 0;
     for (const [type, db] of Object.entries(types)) {
       for (const [key, val] of Object.entries(db)) {
-        if (val?.name) uploads.push(fetch(fbPath(type, key), {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(val)
-        }));
+        if (!val?.name) continue;
+        pending++;
+        dbSetEntry(type, key, val, () => {
+          if (--pending === 0) chrome.storage.local.remove(['tr_db_v1_competitors', 'tr_db_v1_judges']);
+        });
       }
-    }
-    if (uploads.length) {
-      Promise.all(uploads).then(() => {
-        chrome.storage.local.remove(['tr_db_v1_competitors', 'tr_db_v1_judges']);
-      });
     }
   });
 }
@@ -177,13 +206,13 @@ function migrateOldNotes() {
 function dbLoad(type, cb) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
-  fetch(fbPath(type), { signal: controller.signal })
+  fbUrl(type)
+    .then(url => fetch(url, { signal: controller.signal }))
     .then(async r => {
       clearTimeout(timeout);
       if (!r.ok && r.status !== 404) {
         const body = await r.json().catch(() => null);
-        const msg = body?.error || `HTTP ${r.status}`;
-        cb({}, msg);
+        cb({}, body?.error || `HTTP ${r.status}`);
         return;
       }
       const data = await r.json().catch(() => null);
@@ -191,16 +220,17 @@ function dbLoad(type, cb) {
     })
     .catch(err => {
       clearTimeout(timeout);
-      cb({}, err.name === 'AbortError' ? 'Request timed out (check Firebase URL)' : (err.message || 'Network error'));
+      cb({}, err.name === 'AbortError' ? 'Request timed out' : (err.message || 'Network error'));
     });
 }
 
 function dbSetEntry(type, key, value, cb) {
-  fetch(fbPath(type, key), {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(value)
-  })
+  fbUrl(type, key)
+    .then(url => fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(value)
+    }))
     .then(async r => {
       if (!r.ok) {
         const body = await r.json().catch(() => null);
@@ -213,7 +243,8 @@ function dbSetEntry(type, key, value, cb) {
 }
 
 function dbDeleteEntry(type, key, cb) {
-  fetch(fbPath(type, key), { method: 'DELETE' })
+  fbUrl(type, key)
+    .then(url => fetch(url, { method: 'DELETE' }))
     .then(r => cb?.(r.ok, r.ok ? null : `HTTP ${r.status}`))
     .catch(err => cb?.(false, err.message || 'Network error'));
 }

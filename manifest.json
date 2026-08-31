@@ -9,7 +9,9 @@
     "https://*.tabroom.com/*",
     "http://tabroom.com/*",
     "https://tabroom.com/*",
-    "https://tabroom-client-default-rtdb.firebaseio.com/*"
+    "https://tabroom-client-default-rtdb.firebaseio.com/*",
+    "https://identitytoolkit.googleapis.com/*",
+    "https://securetoken.googleapis.com/*"
   ],
   "content_scripts": [
     {
