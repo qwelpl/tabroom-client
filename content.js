@@ -8,8 +8,6 @@ function swapLogo() {
   const img = document.querySelector('#logo img');
   if (img) {
     img.src = chrome.runtime.getURL('logo-light.jpg');
-    img.style.maxHeight = '56px';
-    img.style.width = 'auto';
   }
 }
 
