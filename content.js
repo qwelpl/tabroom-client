@@ -175,8 +175,11 @@ function migrateOldNotes() {
 }
 
 function dbLoad(type, cb) {
-  fetch(fbPath(type))
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  fetch(fbPath(type), { signal: controller.signal })
     .then(async r => {
+      clearTimeout(timeout);
       if (!r.ok && r.status !== 404) {
         const body = await r.json().catch(() => null);
         const msg = body?.error || `HTTP ${r.status}`;
@@ -186,7 +189,10 @@ function dbLoad(type, cb) {
       const data = await r.json().catch(() => null);
       cb(data && typeof data === 'object' ? data : {}, null);
     })
-    .catch(err => cb({}, err.message || 'Network error'));
+    .catch(err => {
+      clearTimeout(timeout);
+      cb({}, err.name === 'AbortError' ? 'Request timed out (check Firebase URL)' : (err.message || 'Network error'));
+    });
 }
 
 function dbSetEntry(type, key, value, cb) {
@@ -213,11 +219,13 @@ function dbDeleteEntry(type, key, cb) {
 }
 
 function renderDbList(panel, type, filter) {
+  const list = panel.querySelector('.tr-db-list');
+  list.innerHTML = `<div class="tr-db-empty">Loading…</div>`;
   dbLoad(type, (db, err) => {
-    const list = panel.querySelector('.tr-db-list');
     if (err) {
       const hint = (err.includes('Permission') || err.includes('401') || err.includes('403'))
-        ? ' — Firebase rules blocking access' : '';
+        ? ' — Firebase rules blocking access'
+        : err.includes('timed out') ? ' — Firebase unreachable' : '';
       list.innerHTML = `<div class="tr-db-error">Sync error: ${err}${hint}</div>`;
       return;
     }
