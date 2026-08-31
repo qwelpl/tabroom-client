@@ -332,6 +332,12 @@ div.main h4, div.mainfull h4 {
   font-weight: 600 !important;
   color: var(--t-text) !important;
   font-family: inherit !important;
+  margin: 0 !important;
+}
+
+.flexrow h1, .flexrow h2, .flexrow h3,
+.flexrow h4, .flexrow h5, .flexrow h6 {
+  margin: 0 !important;
 }
 
 div.main h5, div.mainfull h5 {
