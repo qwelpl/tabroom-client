@@ -318,7 +318,9 @@ function openDbEditor(panel, type, key, name) {
   const nameEl = panel.querySelector('.tr-db-ed-name');
   const ta = panel.querySelector('.tr-db-ed-area');
 
-  // Show editor immediately with loading state
+  // currentKey is mutable — rename updates it so ta.oninput always writes to the right path
+  let currentKey = key;
+
   panel.querySelector('.tr-db-list-view').style.display = 'none';
   ed.style.display = '';
   nameEl.textContent = name || key;
@@ -336,17 +338,48 @@ function openDbEditor(panel, type, key, name) {
       return;
     }
     st.textContent = '';
-    const entry = db[key] || { name: name || key, notes: '', updated: 0 };
-    if (entry.name === key && name) entry.name = name;
+    const entry = db[currentKey] || { name: name || currentKey, notes: '', updated: 0 };
+    if (entry.name === currentKey && name) entry.name = name;
     nameEl.textContent = entry.name;
     ta.value = entry.notes || '';
+
+    // Rename on blur or Enter
+    function doRename() {
+      const newName = nameEl.textContent.trim();
+      if (!newName || newName === entry.name) return;
+      const oldKey = currentKey;
+      const newKey = dbNormKey(newName);
+      entry.name = newName;
+      const payload = { ...entry, updated: Date.now() };
+      dbSetEntry(type, newKey, payload, (ok, saveErr) => {
+        if (!ok) {
+          st.textContent = `Rename failed: ${saveErr}`;
+          st.style.color = '#c0392b';
+          setTimeout(() => { st.textContent = ''; st.style.color = ''; }, 3000);
+          return;
+        }
+        if (newKey !== oldKey) dbDeleteEntry(type, oldKey, () => {});
+        currentKey = newKey;
+        nameEl.dataset.key = newKey;
+        st.textContent = '✓ Renamed';
+        setTimeout(() => { st.textContent = ''; }, 1500);
+      });
+    }
+
+    nameEl.onkeydown = e => {
+      if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); }
+      if (e.key === 'Escape') { nameEl.textContent = entry.name; nameEl.blur(); }
+    };
+    nameEl.onblur = doRename;
+
+    // Save notes
     let timer;
     ta.oninput = () => {
       st.textContent = '●';
       st.style.color = '';
       clearTimeout(timer);
       timer = setTimeout(() => {
-        dbSetEntry(type, key, { ...entry, notes: ta.value, updated: Date.now() }, (ok, saveErr) => {
+        dbSetEntry(type, currentKey, { ...entry, notes: ta.value, updated: Date.now() }, (ok, saveErr) => {
           if (ok) {
             st.textContent = '✓';
             st.style.color = '';
@@ -384,7 +417,7 @@ function getOrCreateDbPanel() {
     <div class="tr-db-editor" style="display:none">
       <div class="tr-db-ed-bar">
         <button class="tr-db-back">← Back</button>
-        <span class="tr-db-ed-name"></span>
+        <span class="tr-db-ed-name" contenteditable="true" spellcheck="false"></span>
         <span class="tr-db-ed-status"></span>
         <button class="tr-db-delete" title="Delete note">Delete</button>
       </div>

@@ -1361,6 +1361,16 @@ body table tr.tr-bye-row.even:hover td {
   font-size: 13px;
   font-weight: 600;
   color: var(--t-text);
+  border-radius: 3px;
+  padding: 1px 4px;
+  outline: none;
+  cursor: text;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tr-db-ed-name:focus {
+  background: var(--t-hover);
+  box-shadow: 0 0 0 1px var(--t-accent);
 }
 .tr-db-ed-status {
   font-size: 12px;
