@@ -1373,10 +1373,10 @@ body table tr.tr-bye-row.even:hover td {
   box-shadow: 0 0 0 1px var(--t-accent);
 }
 .tr-db-ed-status {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--t-accent);
-  min-width: 14px;
-  text-align: center;
+  padding: 2px 14px;
+  min-height: 18px;
   white-space: nowrap;
 }
 .tr-db-delete {

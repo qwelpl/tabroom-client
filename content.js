@@ -418,9 +418,9 @@ function getOrCreateDbPanel() {
       <div class="tr-db-ed-bar">
         <button class="tr-db-back">← Back</button>
         <span class="tr-db-ed-name" contenteditable="true" spellcheck="false"></span>
-        <span class="tr-db-ed-status"></span>
         <button class="tr-db-delete" title="Delete note">Delete</button>
       </div>
+      <div class="tr-db-ed-status"></div>
       <textarea class="tr-db-ed-area" placeholder="Your notes…"></textarea>
     </div>
   `;
