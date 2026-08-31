@@ -32,22 +32,40 @@ function highlightWinningRows() {
   if (!/\/user\/student\//i.test(location.pathname)) return;
 
   document.querySelectorAll('table').forEach(table => {
-    const headers = [...(table.querySelectorAll('thead th, thead td, tr:first-child th, tr:first-child td'))];
-    if (!headers.length) return;
+    const headers = [...table.querySelectorAll('thead th, thead td, tr:first-child th, tr:first-child td')];
 
+    // Strategy 1: separate W and L columns
     let wIdx = -1, lIdx = -1;
     headers.forEach((th, i) => {
       const t = th.textContent.trim().toLowerCase();
       if (wIdx === -1 && (t === 'w' || t === 'wins' || t === 'win')) wIdx = i;
       if (lIdx === -1 && (t === 'l' || t === 'losses' || t === 'loss')) lIdx = i;
     });
-    if (wIdx === -1 || lIdx === -1) return;
+
+    // Strategy 2: W/L inline in "Judges & Results" or last cell
+    const resultsIdx = headers.findIndex(th =>
+      /result|judge/i.test(th.textContent)
+    );
 
     table.querySelectorAll('tbody tr').forEach(row => {
       const cells = row.querySelectorAll('td');
-      const w = parseFloat(cells[wIdx]?.textContent.trim());
-      const l = parseFloat(cells[lIdx]?.textContent.trim());
-      if (!isNaN(w) && !isNaN(l) && w > l) row.classList.add('tr-win-row');
+      if (!cells.length) return;
+
+      let w = 0, l = 0;
+
+      if (wIdx !== -1 && lIdx !== -1) {
+        w = parseFloat(cells[wIdx]?.textContent.trim()) || 0;
+        l = parseFloat(cells[lIdx]?.textContent.trim()) || 0;
+      } else {
+        // count standalone W / L in results column or whole row
+        const target = resultsIdx !== -1 ? cells[resultsIdx] : row;
+        const text = target.textContent;
+        w = (text.match(/\bW\b/g) || []).length;
+        l = (text.match(/\bL\b/g) || []).length;
+      }
+
+      if (w > 0 && w > l) row.classList.add('tr-win-row');
+      else row.classList.remove('tr-win-row');
     });
   });
 }
