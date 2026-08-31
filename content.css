@@ -593,6 +593,17 @@ a.button.redtext {
   color: var(--t-red) !important;
 }
 
+/* --- FA icon-only buttons vertical alignment --- */
+a.fa.buttonwhite,
+a.buttonwhite.fa,
+button.fa.buttonwhite,
+button.buttonwhite.fa {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+}
+
 /* --- Header / icon-only buttons — keep transparent --- */
 #toprow button,
 #search button,
