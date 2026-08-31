@@ -1269,6 +1269,82 @@ body table tr.tr-bye-row.even:hover td {
   width: auto !important;
   line-height: 1 !important;
 }
+.tr-db-mode-toggle {
+  display: flex;
+  gap: 2px;
+}
+.tr-db-mode {
+  padding: 3px 8px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  background: transparent !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 20px !important;
+  color: var(--t-muted) !important;
+  cursor: pointer !important;
+  height: auto !important;
+  width: auto !important;
+}
+.tr-db-mode.active {
+  background: var(--t-text) !important;
+  border-color: var(--t-text) !important;
+  color: var(--t-white) !important;
+}
+.tr-db-group-bar {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--t-border);
+  background: var(--t-blue-bg);
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tr-db-group-no-group, .tr-db-group-has-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.tr-db-group-input {
+  flex: 1;
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 4px !important;
+  background: var(--t-white) !important;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.tr-db-group-join-btn, .tr-db-group-create-btn,
+.tr-db-group-copy-btn, .tr-db-group-leave-btn {
+  padding: 4px 10px !important;
+  font-size: 11px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  height: auto !important;
+  width: auto !important;
+  border: 1px solid var(--t-border) !important;
+  background: var(--t-white) !important;
+  color: var(--t-text) !important;
+}
+.tr-db-group-leave-btn {
+  color: var(--t-red) !important;
+  border-color: var(--t-red) !important;
+}
+.tr-db-group-code-display {
+  font-family: monospace;
+  font-size: 14px;
+  letter-spacing: 2px;
+  color: var(--t-accent);
+}
+.tr-db-row-author {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--t-muted);
+  margin-left: 6px;
+  font-style: italic;
+}
 .tr-db-list-view {
   display: flex;
   flex-direction: column;

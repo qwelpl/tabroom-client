@@ -281,6 +281,216 @@ function dbDeleteEntry(type, key, cb) {
     .catch(err => cb?.(false, err.message || 'Network error'));
 }
 
+// ===== GROUP SYNC =====
+// Data path: /groups/{code}/{type}/{noteKey}/{uid} = { name, notes, updated, authorEmail }
+// Members:   /groups/{code}/members/{uid} = { email, joinedAt }
+
+let _panelMode = 'personal'; // module-level so openNotesFor can read it
+let _panelGroupCode = null;
+
+async function groupFbUrl(...segments) {
+  const auth = await getAuth();
+  return `${FB_DB}/groups/${segments.join('/')}.json?auth=${auth.token}`;
+}
+
+async function groupCreate() {
+  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+  await groupJoin(code);
+  return code;
+}
+
+async function groupJoin(code) {
+  const auth = await getAuth();
+  const url = await groupFbUrl(code, 'members', auth.uid);
+  const r = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: auth.email, joinedAt: Date.now() })
+  });
+  if (!r.ok) {
+    const d = await r.json().catch(() => ({}));
+    throw new Error(d?.error || `HTTP ${r.status}`);
+  }
+  _panelGroupCode = code;
+  await chrome.storage.local.set({ tr_group: { code } });
+}
+
+async function groupLeave() {
+  if (!_panelGroupCode) return;
+  const auth = await getAuth();
+  const url = await groupFbUrl(_panelGroupCode, 'members', auth.uid);
+  await fetch(url, { method: 'DELETE' }).catch(() => {});
+  _panelGroupCode = null;
+  await chrome.storage.local.remove('tr_group');
+}
+
+function groupLoadNotes(code, type, cb) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  groupFbUrl(code, type)
+    .then(url => fetch(url, { signal: controller.signal }))
+    .then(async r => {
+      clearTimeout(timeout);
+      if (!r.ok && r.status !== 404) {
+        const body = await r.json().catch(() => null);
+        cb({}, body?.error || `HTTP ${r.status}`);
+        return;
+      }
+      const data = await r.json().catch(() => null);
+      cb(data && typeof data === 'object' ? data : {}, null);
+    })
+    .catch(err => {
+      clearTimeout(timeout);
+      cb({}, err.name === 'AbortError' ? 'Request timed out' : (err.message || 'Network error'));
+    });
+}
+
+function groupSetNote(code, type, key, uid, value, cb) {
+  groupFbUrl(code, type, key, uid)
+    .then(url => fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(value)
+    }))
+    .then(async r => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => null);
+        cb?.(false, body?.error || `HTTP ${r.status}`);
+        return;
+      }
+      cb?.(true, null);
+    })
+    .catch(err => cb?.(false, err.message || 'Network error'));
+}
+
+function groupDeleteNote(code, type, key, uid, cb) {
+  groupFbUrl(code, type, key, uid)
+    .then(url => fetch(url, { method: 'DELETE' }))
+    .then(r => cb?.(r.ok, r.ok ? null : `HTTP ${r.status}`))
+    .catch(err => cb?.(false, err.message || 'Network error'));
+}
+
+function renderGroupList(panel, type, filter, code) {
+  const list = panel.querySelector('.tr-db-list');
+  list.innerHTML = `<div class="tr-db-empty">Loading…</div>`;
+  Promise.all([getAuth(), new Promise(res => groupLoadNotes(code, type, res))])
+    .then(([auth, [db, err]]) => {
+      if (err) {
+        list.innerHTML = `<div class="tr-db-error">Group error: ${err}</div>`;
+        return;
+      }
+      const rows = [];
+      for (const [noteKey, members] of Object.entries(db)) {
+        if (!members || typeof members !== 'object') continue;
+        for (const [uid, entry] of Object.entries(members)) {
+          if (!entry?.name) continue;
+          if (filter && !entry.name.toLowerCase().includes(filter.toLowerCase())) continue;
+          rows.push({ noteKey, uid, isMine: uid === auth.uid, ...entry });
+        }
+      }
+      rows.sort((a, b) => a.name.localeCompare(b.name) || (b.updated || 0) - (a.updated || 0));
+      if (!rows.length) {
+        list.innerHTML = `<div class="tr-db-empty">No group ${type} notes yet.</div>`;
+        return;
+      }
+      list.innerHTML = rows.map(row => `
+        <div class="tr-db-row" data-key="${row.noteKey}" data-uid="${row.uid}" data-type="${type}" data-mine="${row.isMine}">
+          <div class="tr-db-row-name">${row.name}
+            <span class="tr-db-row-author">${row.isMine ? 'you' : (row.authorEmail || row.uid)}</span>
+          </div>
+          <div class="tr-db-row-preview">${(row.notes || '').slice(0, 80) || '—'}</div>
+        </div>
+      `).join('');
+      list.querySelectorAll('.tr-db-row').forEach(row => {
+        row.addEventListener('click', () =>
+          openGroupEditor(panel, type, row.dataset.key, row.dataset.uid, code, row.dataset.mine === 'true'));
+      });
+    })
+    .catch(err => {
+      list.innerHTML = `<div class="tr-db-error">Auth error: ${err.message}</div>`;
+    });
+}
+
+function openGroupEditor(panel, type, key, uid, code, editable) {
+  const ed = panel.querySelector('.tr-db-editor');
+  const st = panel.querySelector('.tr-db-ed-status');
+  const nameEl = panel.querySelector('.tr-db-ed-name');
+  const ta = panel.querySelector('.tr-db-ed-area');
+  const deleteBtn = panel.querySelector('.tr-db-delete');
+
+  let currentKey = key;
+  panel.querySelector('.tr-db-list-view').style.display = 'none';
+  ed.style.display = '';
+  nameEl.contentEditable = editable ? 'true' : 'false';
+  nameEl.textContent = key;
+  nameEl.dataset.key = key;
+  ta.value = '';
+  ta.disabled = true;
+  deleteBtn.style.display = editable ? '' : 'none';
+  st.textContent = 'Loading…';
+  st.style.color = '';
+
+  getAuth().then(auth => groupFbUrl(code, type, key, uid).then(url => ({ url, auth })))
+    .then(({ url, auth }) => fetch(url))
+    .then(async r => {
+      const data = await r.json().catch(() => null);
+      const entry = (data && typeof data === 'object') ? data : { name: key, notes: '', updated: 0 };
+      ta.disabled = !editable;
+      st.textContent = editable ? '' : '(read-only)';
+      nameEl.textContent = entry.name || key;
+      ta.value = entry.notes || '';
+      if (!editable) return;
+
+      function doRename() {
+        const newName = nameEl.textContent.trim();
+        if (!newName || newName === entry.name) return;
+        const oldKey = currentKey;
+        const newKey = dbNormKey(newName);
+        entry.name = newName;
+        getAuth().then(auth => {
+          groupSetNote(code, type, newKey, uid, { ...entry, updated: Date.now(), authorEmail: auth.email }, (ok, saveErr) => {
+            if (!ok) { st.textContent = `Rename failed: ${saveErr}`; st.style.color = '#c0392b'; setTimeout(() => { st.textContent = ''; st.style.color = ''; }, 3000); return; }
+            if (newKey !== oldKey) groupDeleteNote(code, type, oldKey, uid, () => {});
+            currentKey = newKey;
+            nameEl.dataset.key = newKey;
+            st.textContent = '✓ Renamed';
+            setTimeout(() => { st.textContent = ''; }, 1500);
+          });
+        });
+      }
+      nameEl.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); } if (e.key === 'Escape') { nameEl.textContent = entry.name; nameEl.blur(); } };
+      nameEl.onblur = doRename;
+
+      let timer;
+      ta.oninput = () => {
+        st.textContent = '●'; st.style.color = '';
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          getAuth().then(auth => {
+            groupSetNote(code, type, currentKey, uid, { ...entry, notes: ta.value, updated: Date.now(), authorEmail: auth.email }, (ok, saveErr) => {
+              st.textContent = ok ? '✓' : `Save failed: ${saveErr}`;
+              st.style.color = ok ? '' : '#c0392b';
+              setTimeout(() => { st.textContent = ''; st.style.color = ''; }, 3000);
+            });
+          });
+        }, 600);
+      };
+
+      deleteBtn.onclick = () => {
+        groupDeleteNote(code, type, currentKey, uid, () => {
+          ed.style.display = 'none';
+          panel.querySelector('.tr-db-list-view').style.display = '';
+          renderGroupList(panel, type, panel.querySelector('.tr-db-search').value, code);
+        });
+      };
+    })
+    .catch(err => {
+      ta.disabled = false;
+      st.textContent = `Error: ${err.message}`;
+      st.style.color = '#c0392b';
+    });
+}
+
 function renderDbList(panel, type, filter) {
   const list = panel.querySelector('.tr-db-list');
   list.innerHTML = `<div class="tr-db-empty">Loading…</div>`;
@@ -407,9 +617,25 @@ function getOrCreateDbPanel() {
         <button class="tr-db-tab active" data-type="competitors">Competitors</button>
         <button class="tr-db-tab" data-type="judges">Judges</button>
       </div>
+      <div class="tr-db-mode-toggle">
+        <button class="tr-db-mode active" data-mode="personal">Mine</button>
+        <button class="tr-db-mode" data-mode="group">Group</button>
+      </div>
       <button class="tr-db-close" title="Close">×</button>
     </div>
     <div class="tr-db-sync-info">Syncing as: <span class="tr-db-email-key"></span></div>
+    <div class="tr-db-group-bar" style="display:none">
+      <div class="tr-db-group-no-group">
+        <input class="tr-db-group-input" placeholder="Enter code…" maxlength="10" />
+        <button class="tr-db-group-join-btn">Join</button>
+        <button class="tr-db-group-create-btn">New</button>
+      </div>
+      <div class="tr-db-group-has-group" style="display:none">
+        Code: <strong class="tr-db-group-code-display"></strong>
+        <button class="tr-db-group-copy-btn" title="Copy code">Copy</button>
+        <button class="tr-db-group-leave-btn">Leave</button>
+      </div>
+    </div>
     <div class="tr-db-list-view">
       <input class="tr-db-search" type="text" placeholder="Search…" />
       <div class="tr-db-list"></div>
@@ -424,6 +650,7 @@ function getOrCreateDbPanel() {
       <textarea class="tr-db-ed-area" placeholder="Your notes…"></textarea>
     </div>
   `;
+
   const emailKeyEl = panel.querySelector('.tr-db-email-key');
   emailKeyEl.textContent = detectEmail() || 'detecting…';
   getAuth().then(auth => { emailKeyEl.textContent = auth.email; })
@@ -431,34 +658,102 @@ function getOrCreateDbPanel() {
 
   let currentType = 'competitors';
 
+  function rerender() {
+    panel.querySelector('.tr-db-editor').style.display = 'none';
+    panel.querySelector('.tr-db-list-view').style.display = '';
+    const filter = panel.querySelector('.tr-db-search').value;
+    if (_panelMode === 'group' && _panelGroupCode) {
+      renderGroupList(panel, currentType, filter, _panelGroupCode);
+    } else if (_panelMode === 'group') {
+      panel.querySelector('.tr-db-list').innerHTML = `<div class="tr-db-empty">Join or create a group above.</div>`;
+    } else {
+      renderDbList(panel, currentType, filter);
+    }
+  }
+
+  function updateGroupBar() {
+    const bar = panel.querySelector('.tr-db-group-bar');
+    const noGroup = panel.querySelector('.tr-db-group-no-group');
+    const hasGroup = panel.querySelector('.tr-db-group-has-group');
+    if (_panelMode === 'group') {
+      bar.style.display = '';
+      if (_panelGroupCode) {
+        noGroup.style.display = 'none';
+        hasGroup.style.display = '';
+        panel.querySelector('.tr-db-group-code-display').textContent = _panelGroupCode;
+      } else {
+        noGroup.style.display = '';
+        hasGroup.style.display = 'none';
+      }
+    } else {
+      bar.style.display = 'none';
+    }
+  }
+
+  // Load saved group
+  chrome.storage.local.get('tr_group', ({ tr_group }) => {
+    if (tr_group?.code) _panelGroupCode = tr_group.code;
+  });
+
+  // Mode toggle
+  panel.querySelectorAll('.tr-db-mode').forEach(btn => {
+    btn.addEventListener('click', () => {
+      panel.querySelectorAll('.tr-db-mode').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _panelMode = btn.dataset.mode;
+      updateGroupBar();
+      rerender();
+    });
+  });
+
+  // Group join
+  panel.querySelector('.tr-db-group-join-btn').addEventListener('click', () => {
+    const code = panel.querySelector('.tr-db-group-input').value.trim().toUpperCase();
+    if (!code) return;
+    const st = panel.querySelector('.tr-db-list');
+    st.innerHTML = `<div class="tr-db-empty">Joining…</div>`;
+    groupJoin(code)
+      .then(() => { updateGroupBar(); rerender(); })
+      .catch(err => { st.innerHTML = `<div class="tr-db-error">Join failed: ${err.message}</div>`; });
+  });
+
+  // Group create
+  panel.querySelector('.tr-db-group-create-btn').addEventListener('click', () => {
+    const st = panel.querySelector('.tr-db-list');
+    st.innerHTML = `<div class="tr-db-empty">Creating…</div>`;
+    groupCreate()
+      .then(() => { updateGroupBar(); rerender(); })
+      .catch(err => { st.innerHTML = `<div class="tr-db-error">Create failed: ${err.message}</div>`; });
+  });
+
+  // Group copy code
+  panel.querySelector('.tr-db-group-copy-btn').addEventListener('click', () => {
+    if (_panelGroupCode) navigator.clipboard.writeText(_panelGroupCode).catch(() => {});
+  });
+
+  // Group leave
+  panel.querySelector('.tr-db-group-leave-btn').addEventListener('click', () => {
+    groupLeave().then(() => { updateGroupBar(); rerender(); });
+  });
+
+  // Tabs
   panel.querySelectorAll('.tr-db-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentType = tab.dataset.type;
-      panel.querySelector('.tr-db-editor').style.display = 'none';
-      panel.querySelector('.tr-db-list-view').style.display = '';
-      renderDbList(panel, currentType, panel.querySelector('.tr-db-search').value);
+      rerender();
     });
   });
 
-  panel.querySelector('.tr-db-search').addEventListener('input', e =>
-    renderDbList(panel, currentType, e.target.value));
+  panel.querySelector('.tr-db-search').addEventListener('input', rerender);
 
-  panel.querySelector('.tr-db-back').addEventListener('click', () => {
-    panel.querySelector('.tr-db-editor').style.display = 'none';
-    panel.querySelector('.tr-db-list-view').style.display = '';
-    renderDbList(panel, currentType, panel.querySelector('.tr-db-search').value);
-  });
+  panel.querySelector('.tr-db-back').addEventListener('click', rerender);
 
   panel.querySelector('.tr-db-delete').addEventListener('click', () => {
     const key = panel.querySelector('.tr-db-ed-name').dataset.key;
     if (!key) return;
-    dbDeleteEntry(currentType, key, () => {
-      panel.querySelector('.tr-db-editor').style.display = 'none';
-      panel.querySelector('.tr-db-list-view').style.display = '';
-      renderDbList(panel, currentType, panel.querySelector('.tr-db-search').value);
-    });
+    dbDeleteEntry(currentType, key, rerender);
   });
 
   panel.querySelector('.tr-db-close').addEventListener('click', () => {
@@ -466,7 +761,7 @@ function getOrCreateDbPanel() {
     document.querySelector('.tr-db-fab')?.style.removeProperty('display');
   });
 
-  renderDbList(panel, currentType, '');
+  rerender();
   document.body.appendChild(panel);
   _dbPanel = panel;
   return panel;
@@ -481,7 +776,12 @@ function openNotesFor(type, name) {
     t.classList.toggle('active', t.dataset.type === type);
   });
 
-  openDbEditor(panel, type, dbNormKey(name), name);
+  const key = dbNormKey(name);
+  if (_panelMode === 'group' && _panelGroupCode) {
+    getAuth().then(auth => openGroupEditor(panel, type, key, auth.uid, _panelGroupCode, true));
+  } else {
+    openDbEditor(panel, type, key, name);
+  }
 }
 
 function injectDbFab() {
