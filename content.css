@@ -1045,6 +1045,77 @@ body button.printbutton.greentext.buttonwhite:hover {
   color: var(--t-text) !important;
 }
 
+/* ===== TABNAV ===== */
+ul#tabnav {
+  border-bottom: 2px solid var(--t-border) !important;
+}
+
+ul#tabnav li,
+.sidenote ul#tabnav li {
+  background-color: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  border-bottom: none !important;
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
+  margin-left: 2px !important;
+  margin-right: 2px !important;
+  margin-bottom: -1px !important;
+}
+
+ul#tabnav li a,
+.sidenote ul#tabnav li a {
+  color: var(--t-muted) !important;
+  text-decoration: none !important;
+  letter-spacing: 0 !important;
+  font-weight: 500 !important;
+}
+
+ul#tabnav li:hover,
+.sidenote ul#tabnav li:hover {
+  background: var(--t-hover) !important;
+}
+
+ul#tabnav li:hover a,
+.sidenote ul#tabnav li:hover a {
+  color: var(--t-accent) !important;
+}
+
+ul#tabnav li.selected,
+ul#tabnav li.selected_dark {
+  background: var(--t-white) !important;
+  border-bottom: 2px solid var(--t-white) !important;
+  margin-bottom: -2px !important;
+}
+
+ul#tabnav li.selected a,
+ul#tabnav li.selected_dark a {
+  color: var(--t-accent) !important;
+  font-weight: 700 !important;
+}
+
+ul#tabnav li.selected:hover,
+ul#tabnav li.selected_dark:hover {
+  background: var(--t-white) !important;
+}
+
+ul#tabnav li.warning {
+  background: var(--t-red-bg) !important;
+  border-color: #fecaca !important;
+}
+
+ul#tabnav li.warning a {
+  color: var(--t-red) !important;
+}
+
+ul#tabnav li.redtext {
+  border-color: #fecaca !important;
+}
+
+ul#tabnav li.redtext a,
+ul#tabnav li a.redtext {
+  color: var(--t-red) !important;
+}
+
 /* ===== COMPACT MODE ===== */
 body.tr-compact table th,
 body.tr-compact table td {
