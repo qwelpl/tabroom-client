@@ -130,6 +130,13 @@ label, th, td.category, .smtext {
   color: var(--t-muted) !important;
   background: transparent !important;
   border: none !important;
+  vertical-align: middle !important;
+}
+
+#tabroom_inbox {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
 }
 
 #toprow a:hover {
