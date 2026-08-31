@@ -1,264 +1,350 @@
+:root {
+  --theme-accent: #0d6b89;
+  --theme-accent-soft: rgba(13, 107, 137, 0.1);
+  --theme-page: #e8f0f3;
+  --theme-header: #063b4d;
+  --theme-surface: #ffffff;
+  --theme-surface-muted: #f4f7f8;
+  --theme-border: #c9d5da;
+  --theme-text: #1d2930;
+  --theme-muted: #5d6b72;
+  --theme-row: #eef2f4;
+  --theme-highlight: #e4f2f7;
+}
+
 html,
 body {
-  background: linear-gradient(180deg, #0b5a70 0%, #0c89b7 100%) !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  color: #1f2937 !important;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+  min-height: 100%;
+  background: var(--theme-page) !important;
 }
 
 body {
+  color: var(--theme-text) !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  line-height: 1.45 !important;
+}
+
+#overlay {
   min-height: 100vh;
+  background: none !important;
 }
 
-body * {
-  box-sizing: border-box;
-}
-
-body > div,
-body > table,
-body > form,
-body > main,
-body > section,
-body .content,
-body .page,
-body .main,
-body .container,
-body .panel,
-body .card,
-body .box,
-body .sidebar,
-body .column,
-body .row,
-body .section,
-body .tabroom-shell,
-body .tabroom-panel,
-body .tabroom-card {
-  background: rgba(255, 255, 255, 0.92) !important;
-  border: 1px solid rgba(17, 24, 39, 0.08) !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-}
-
-body .content,
-body .page,
-body .main,
-body .container,
-body .panel,
-body .box,
-body .section,
-body .tabroom-shell,
-body .tabroom-panel,
-body .tabroom-card {
-  padding: 18px 20px !important;
-}
-
-body table {
+#header {
   width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  padding: 0 clamp(20px, 5vw, 80px) !important;
+  background: var(--theme-header) !important;
+}
+
+#headerarch {
+  max-width: 1536px;
+  min-height: 86px;
+  max-height: none !important;
+  margin: 0 auto;
+  align-items: center !important;
+}
+
+#logo {
+  width: 275px !important;
+  padding: 10px 0 !important;
+}
+
+#logo a img {
+  display: block;
+  max-width: 245px !important;
+  max-height: 68px !important;
+}
+
+#toprow {
+  align-items: center;
+}
+
+#toprow a,
+#toprow a:visited {
+  color: #dcecf1 !important;
+}
+
+#search {
+  border: 1px solid rgba(255, 255, 255, 0.24) !important;
+  border-radius: 5px !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+#searchtext {
+  color: #ffffff !important;
+  background: transparent !important;
+  border: 0 !important;
+}
+
+#searchtext::placeholder {
+  color: #c0d5dc !important;
+}
+
+#nav {
+  float: none !important;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  max-width: 1536px;
+  margin: 0 auto !important;
+  padding: 0 0 10px !important;
+}
+
+#nav li.top {
+  float: none !important;
+}
+
+#nav li a.top_link,
+#nav li a.top_link span.down {
+  width: auto !important;
+}
+
+#nav li a.top_link span.down {
+  padding: 8px 22px !important;
+  border-radius: 4px 4px 0 0;
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fbfc !important;
+}
+
+#nav li:hover a.top_link span.down {
+  background: var(--theme-accent) !important;
+  color: #ffffff !important;
+}
+
+#wrapper {
+  width: min(1536px, 100%) !important;
+  max-width: none !important;
+  min-height: calc(100vh - 120px) !important;
+}
+
+#content {
+  min-height: calc(100vh - 120px);
+  background: var(--theme-page) !important;
+}
+
+#content > .main,
+#content > .mainfull {
+  background: var(--theme-surface) !important;
+}
+
+div.main,
+div.mainfull {
+  color: var(--theme-text) !important;
+  padding: 26px clamp(20px, 3vw, 48px) 44px !important;
+}
+
+div.main h1,
+div.main h2,
+div.main h3,
+div.mainfull h1,
+div.mainfull h2,
+div.mainfull h3 {
+  color: var(--theme-text) !important;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.025em;
+}
+
+div.main h1,
+div.mainfull h1 {
+  margin: 0 0 20px !important;
+  font-size: clamp(30px, 3vw, 44px) !important;
+}
+
+div.main h2,
+div.mainfull h2 {
+  margin-top: 26px !important;
+  font-size: 25px !important;
+}
+
+div.menu {
+  width: 27% !important;
+  padding: 0 14px 30px !important;
+}
+
+div.menu .sidenote {
+  width: 100% !important;
+  margin: 14px 0 !important;
+  padding: 14px !important;
+  background: var(--theme-surface) !important;
+  border: 1px solid var(--theme-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 7px rgba(25, 55, 65, 0.06) !important;
+}
+
+div.menu .sidenote h3,
+div.menu .sidenote h4,
+div.menu .sidenote h5 {
+  color: var(--theme-text) !important;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif !important;
+}
+
+div.menu .sidenote h4 {
+  margin: 14px 0 5px !important;
+  font-size: 20px !important;
+}
+
+div.menu .sidenote a {
+  color: var(--theme-accent) !important;
+}
+
+div.menu .sidenote select,
+div.menu .sidenote .select2-container {
+  width: 100% !important;
+}
+
+.tabad_carousel {
+  width: 73% !important;
+  background: #dce8ec !important;
+}
+
+.tabad_carousel img {
+  max-height: 100px;
+}
+
+table {
+  width: 100%;
+  border: 1px solid var(--theme-border) !important;
   border-collapse: separate !important;
   border-spacing: 0 !important;
-  background: #ffffff !important;
-  border: 1px solid #dfe5ee !important;
-  border-radius: 0 !important;
   overflow: hidden;
+  background: var(--theme-surface) !important;
 }
 
-body th,
-body td {
-  padding: 10px 12px !important;
-  border-bottom: 1px solid #dfe5ee !important;
-  border-right: 1px solid #edf1f5 !important;
-  color: #1f2937 !important;
-  background: transparent !important;
+table th,
+table td {
+  padding: 9px 11px !important;
+  border-right: 1px solid #e1e8eb !important;
+  border-bottom: 1px solid var(--theme-border) !important;
+  color: var(--theme-text) !important;
   font-size: 13px !important;
-  line-height: 1.4 !important;
 }
 
-body th {
-  background: #e7edf0 !important;
-  color: #1f2a37 !important;
+table th {
+  background: #e6eef1 !important;
+  color: #263a43 !important;
   font-weight: 700 !important;
-  letter-spacing: 0.01em;
 }
 
-body tbody tr:nth-child(even) {
-  background: #f3f5f7 !important;
+table tbody tr:nth-child(even) {
+  background: var(--theme-row) !important;
 }
 
-body tbody tr:hover {
-  background: #eaf3ff !important;
+table tbody tr:hover {
+  background: var(--theme-highlight) !important;
 }
 
-body a,
-body a:visited {
-  color: #0d4d6d !important;
-  text-decoration: none !important;
-}
-
-body a:hover {
-  text-decoration: underline !important;
-}
-
-body input,
-body select,
-body textarea,
-body button,
-body .btn,
-body .button {
-  background: #f7f9fb !important;
-  border: 1px solid #d0d9e2 !important;
+input,
+select,
+textarea,
+.select2-selection {
+  border: 1px solid #b9c8ce !important;
   border-radius: 4px !important;
-  color: #1f2937 !important;
-  padding: 7px 10px !important;
-  box-shadow: none !important;
+  background: var(--theme-surface-muted) !important;
+  color: var(--theme-text) !important;
 }
 
-body button,
-body .btn,
-body .button {
-  background: linear-gradient(180deg, #f4f7fa 0%, #eaf0f4 100%) !important;
+button,
+.button,
+.btn,
+a.button,
+a.buttonwhite {
+  border: 1px solid var(--theme-accent) !important;
+  border-radius: 4px !important;
+  background: var(--theme-accent) !important;
+  color: #ffffff !important;
   font-weight: 600 !important;
-  cursor: pointer;
-}
-
-body button:hover,
-body .btn:hover,
-body .button:hover {
-  border-color: #89a8c4 !important;
-  background: linear-gradient(180deg, #edf5ff 0%, #dfeefc 100%) !important;
-}
-
-body .nav,
-body nav,
-body .navbar,
-body .header,
-body .topbar,
-body .masthead {
-  background: #063a4d !important;
-  color: #f5f7fb !important;
-  border-bottom: 1px solid rgba(255,255,255,0.15) !important;
   box-shadow: none !important;
 }
 
-body .nav a,
-body nav a,
-body .navbar a,
-body .header a,
-body .topbar a,
-body .masthead a {
-  color: #f2f6fa !important;
+button:hover,
+.button:hover,
+.btn:hover,
+a.button:hover,
+a.buttonwhite:hover {
+  background: #09536a !important;
+  color: #ffffff !important;
 }
 
-body .nav a:hover,
-body nav a:hover,
-body .navbar a:hover,
-body .header a:hover,
-body .topbar a:hover,
-body .masthead a:hover {
-  text-decoration: underline !important;
+a,
+a:visited {
+  color: var(--theme-accent) !important;
 }
 
-body .panel-title,
-body h1,
-body h2,
-body h3,
-body h4,
-body h5,
-body h6 {
-  color: #1f2937 !important;
-  font-family: 'Trebuchet MS', 'Segoe UI', sans-serif !important;
-  letter-spacing: -0.02em;
-}
-
-body h1,
-body h2 {
-  font-weight: 800 !important;
-}
-
-body .side-panel,
-body .right-column,
-body aside {
-  background: rgba(255,255,255,0.86) !important;
-  border: 1px solid rgba(17,24,39,0.08) !important;
-  border-radius: 0 !important;
-}
-
-body .status,
-body .badge,
-body .tag,
-body .pill {
-  border-radius: 4px !important;
-  font-size: 11px !important;
-  font-weight: 700 !important;
-  padding: 3px 6px !important;
-}
-
-body .tabroom-theme-dark {
-  --tabroom-bg: #0b5a70;
-  --tabroom-surface: #101827;
-  --tabroom-text: #edf2ff;
-  --tabroom border: #2c3b4f;
+body.tabroom-theme-compact table th,
+body.tabroom-theme-compact table td {
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
 }
 
 body.tabroom-theme-dark {
-  background: linear-gradient(180deg, #0a3f52 0%, #0f6f8f 100%) !important;
+  --theme-page: #101c25;
+  --theme-header: #061f2a;
+  --theme-surface: #172630;
+  --theme-surface-muted: #1d303b;
+  --theme-border: #3c515c;
+  --theme-text: #e8f0f3;
+  --theme-muted: #afc0c7;
+  --theme-row: #1c2d37;
+  --theme-highlight: #234453;
 }
 
-body.tabroom-theme-dark .content,
-body.tabroom-theme-dark .page,
-body.tabroom-theme-dark .main,
-body.tabroom-theme-dark .container,
-body.tabroom-theme-dark .panel,
-body.tabroom-theme-dark .box,
-body.tabroom-theme-dark .section,
-body.tabroom-theme-dark .tabroom-shell,
-body.tabroom-theme-dark .tabroom-panel,
-body.tabroom-theme-dark .tabroom-card,
-body.tabroom-theme-dark .side-panel,
-body.tabroom-theme-dark .right-column,
-body.tabroom-theme-dark aside {
-  background: rgba(15, 23, 42, 0.9) !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
-  color: #e5e7eb !important;
+body.tabroom-theme-dark #content,
+body.tabroom-theme-dark div.main,
+body.tabroom-theme-dark div.mainfull,
+body.tabroom-theme-dark div.menu .sidenote,
+body.tabroom-theme-dark table {
+  background: var(--theme-surface) !important;
 }
 
-body.tabroom-theme-dark th,
-body.tabroom-theme-dark td,
-body.tabroom-theme-dark h1,
-body.tabroom-theme-dark h2,
-body.tabroom-theme-dark h3,
-body.tabroom-theme-dark h4,
-body.tabroom-theme-dark h5,
-body.tabroom-theme-dark h6,
-body.tabroom-theme-dark a,
-body.tabroom-theme-dark a:visited,
+body.tabroom-theme-dark table th,
 body.tabroom-theme-dark input,
 body.tabroom-theme-dark select,
 body.tabroom-theme-dark textarea,
-body.tabroom-theme-dark button,
-body.tabroom-theme-dark .btn,
-body.tabroom-theme-dark .button {
-  color: #e5e7eb !important;
+body.tabroom-theme-dark .select2-selection {
+  background: #203640 !important;
+  color: var(--theme-text) !important;
 }
 
-body.tabroom-theme-dark th {
-  background: #1c2433 !important;
-}
+@media (max-width: 900px) {
+  #header {
+    padding: 0 16px !important;
+  }
 
-body.tabroom-theme-dark tbody tr:nth-child(even) {
-  background: rgba(255,255,255,0.02) !important;
-}
+  #headerarch {
+    min-height: 72px;
+  }
 
-body.tabroom-theme-dark tbody tr:hover {
-  background: rgba(96, 165, 250, 0.12) !important;
-}
+  #logo {
+    width: 210px !important;
+  }
 
-body.tabroom-theme-dark input,
-body.tabroom-theme-dark select,
-body.tabroom-theme-dark textarea,
-body.tabroom-theme-dark button,
-body.tabroom-theme-dark .btn,
-body.tabroom-theme-dark .button {
-  background: #111827 !important;
-  border-color: #374151 !important;
+  #logo a img {
+    max-width: 190px !important;
+  }
+
+  #nav {
+    justify-content: stretch;
+    gap: 3px;
+  }
+
+  #nav li {
+    flex: 1;
+  }
+
+  #nav li a.top_link span.down {
+    padding: 8px 5px !important;
+    text-align: center;
+  }
+
+  div.menu,
+  .tabad_carousel {
+    float: none !important;
+    width: 100% !important;
+  }
+
+  div.menu {
+    padding: 0 16px 16px !important;
+  }
 }
