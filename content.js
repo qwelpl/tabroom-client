@@ -116,6 +116,64 @@ function fbPath(type, key) {
   return key ? `${base}/${key}.json` : `${base}.json`;
 }
 
+function migrateOldNotes() {
+  // Migrate from chrome.storage.sync (old format: tr_nc_* / tr_nj_*)
+  chrome.storage.sync.get(null, all => {
+    const migrants = { competitors: {}, judges: {} };
+    const keysToRemove = [];
+
+    for (const [k, v] of Object.entries(all)) {
+      if (k.startsWith('tr_nc_') && v?.name) {
+        const noteKey = k.split('_').slice(3).join('_');
+        migrants.competitors[noteKey] = v;
+        keysToRemove.push(k);
+      } else if (k.startsWith('tr_nj_') && v?.name) {
+        const noteKey = k.split('_').slice(3).join('_');
+        migrants.judges[noteKey] = v;
+        keysToRemove.push(k);
+      }
+    }
+
+    const hasData = Object.keys(migrants.competitors).length + Object.keys(migrants.judges).length > 0;
+    if (!hasData) return;
+
+    const uploads = [];
+    for (const [type, db] of Object.entries(migrants)) {
+      for (const [key, val] of Object.entries(db)) {
+        uploads.push(fetch(fbPath(type, key), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(val)
+        }));
+      }
+    }
+
+    Promise.all(uploads).then(() => {
+      chrome.storage.sync.remove(keysToRemove);
+    });
+  });
+
+  // Also migrate chrome.storage.local (even older format)
+  chrome.storage.local.get({ tr_db_v1_competitors: {}, tr_db_v1_judges: {} }, old => {
+    const types = { competitors: old.tr_db_v1_competitors, judges: old.tr_db_v1_judges };
+    const uploads = [];
+    for (const [type, db] of Object.entries(types)) {
+      for (const [key, val] of Object.entries(db)) {
+        if (val?.name) uploads.push(fetch(fbPath(type, key), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(val)
+        }));
+      }
+    }
+    if (uploads.length) {
+      Promise.all(uploads).then(() => {
+        chrome.storage.local.remove(['tr_db_v1_competitors', 'tr_db_v1_judges']);
+      });
+    }
+  });
+}
+
 function dbLoad(type, cb) {
   fetch(fbPath(type))
     .then(r => r.json())
@@ -373,6 +431,7 @@ function injectTournamentSummary() {
 }
 
 function initExtras() {
+  migrateOldNotes();
   injectDbFab();
   injectTournamentSummary();
   injectOppNoteButtons();
