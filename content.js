@@ -83,16 +83,16 @@ if (document.readyState === 'loading') {
 // ===== NOTES + OPPONENT PERFORMANCE =====
 
 // ===== NOTES DATABASE =====
-// Storage: chrome.storage.sync, one key per note, namespaced by Tabroom email
-// Key format: tr_nc_{emailkey}_{notekey}  (competitors)
-//             tr_nj_{emailkey}_{notekey}  (judges)
+// Storage: Firebase Realtime Database, keyed by Tabroom email
+// Path: /{emailKey}/{type}/{noteKey}
+
+const FB_URL = 'https://tabroom-client-default-rtdb.firebaseio.com';
 
 function dbNormKey(name) { return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_'); }
 
 let _emailKey = null;
 function getEmailKey() {
   if (_emailKey && _emailKey !== 'anon') return _emailKey;
-  // Try all links to user/home.mhtml — one will have the email as text
   const candidates = [
     ...document.querySelectorAll('a[href*="user/home.mhtml"]'),
     document.querySelector('#mobile_email'),
@@ -102,7 +102,6 @@ function getEmailKey() {
     const m = el.textContent.trim().match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
     if (m) { email = m[0]; break; }
   }
-  // fallback: scan entire toprow text
   if (email === 'anon') {
     const m = document.querySelector('#toprow, #headerarch')
       ?.textContent.match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
@@ -112,37 +111,29 @@ function getEmailKey() {
   return _emailKey;
 }
 
-function storePrefix(type) {
-  return `tr_n${type === 'competitors' ? 'c' : 'j'}_${getEmailKey()}_`;
+function fbPath(type, key) {
+  const base = `${FB_URL}/${getEmailKey()}/${type}`;
+  return key ? `${base}/${key}.json` : `${base}.json`;
 }
 
 function dbLoad(type, cb) {
-  chrome.storage.sync.get(null, all => {
-    const prefix = storePrefix(type);
-    const db = {};
-    for (const [k, v] of Object.entries(all)) {
-      if (k.startsWith(prefix) && v?.name) db[k.slice(prefix.length)] = v;
-    }
-    cb(db);
-  });
+  fetch(fbPath(type))
+    .then(r => r.json())
+    .then(data => cb(data && typeof data === 'object' ? data : {}))
+    .catch(() => cb({}));
 }
 
-function dbSave(type, db, cb) {
-  const prefix = storePrefix(type);
-  chrome.storage.sync.get(null, all => {
-    const existing = Object.keys(all).filter(k => k.startsWith(prefix));
-    const toSet = {};
-    const newKeys = new Set();
-    for (const [k, v] of Object.entries(db)) {
-      toSet[prefix + k] = v;
-      newKeys.add(prefix + k);
-    }
-    const toRemove = existing.filter(k => !newKeys.has(k));
-    chrome.storage.sync.set(toSet, () => {
-      if (toRemove.length) chrome.storage.sync.remove(toRemove, cb);
-      else cb?.();
-    });
-  });
+function dbSetEntry(type, key, value, cb) {
+  fetch(fbPath(type, key), {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(value)
+  }).then(() => cb?.()).catch(() => cb?.());
+}
+
+function dbDeleteEntry(type, key, cb) {
+  fetch(fbPath(type, key), { method: 'DELETE' })
+    .then(() => cb?.()).catch(() => cb?.());
 }
 
 function renderDbList(panel, type, filter) {
@@ -186,12 +177,9 @@ function openDbEditor(panel, type, key, name) {
       st.textContent = '●';
       clearTimeout(timer);
       timer = setTimeout(() => {
-        dbLoad(type, db2 => {
-          db2[key] = { ...entry, notes: ta.value, updated: Date.now() };
-          dbSave(type, db2, () => {
-            st.textContent = '✓';
-            setTimeout(() => st.textContent = '', 1500);
-          });
+        dbSetEntry(type, key, { ...entry, notes: ta.value, updated: Date.now() }, () => {
+          st.textContent = '✓';
+          setTimeout(() => st.textContent = '', 1500);
         });
       }, 600);
     };
@@ -253,13 +241,10 @@ function getOrCreateDbPanel() {
   panel.querySelector('.tr-db-delete').addEventListener('click', () => {
     const key = panel.querySelector('.tr-db-ed-name').dataset.key;
     if (!key) return;
-    dbLoad(currentType, db => {
-      delete db[key];
-      dbSave(currentType, db, () => {
-        panel.querySelector('.tr-db-editor').style.display = 'none';
-        panel.querySelector('.tr-db-list-view').style.display = '';
-        renderDbList(panel, currentType, panel.querySelector('.tr-db-search').value);
-      });
+    dbDeleteEntry(currentType, key, () => {
+      panel.querySelector('.tr-db-editor').style.display = 'none';
+      panel.querySelector('.tr-db-list-view').style.display = '';
+      renderDbList(panel, currentType, panel.querySelector('.tr-db-search').value);
     });
   });
 
@@ -288,8 +273,12 @@ function openNotesFor(type, name) {
 
   const key = dbNormKey(name);
   dbLoad(type, db => {
-    if (!db[key]) db[key] = { name, notes: '', updated: Date.now() };
-    dbSave(type, db, () => openDbEditor(panel, type, key, name));
+    if (!db[key]) {
+      dbSetEntry(type, key, { name, notes: '', updated: Date.now() }, () =>
+        openDbEditor(panel, type, key, name));
+    } else {
+      openDbEditor(panel, type, key, name);
+    }
   });
 }
 

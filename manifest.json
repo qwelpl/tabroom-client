@@ -8,7 +8,8 @@
     "http://*.tabroom.com/*",
     "https://*.tabroom.com/*",
     "http://tabroom.com/*",
-    "https://tabroom.com/*"
+    "https://tabroom.com/*",
+    "https://tabroom-client-default-rtdb.firebaseio.com/*"
   ],
   "content_scripts": [
     {
