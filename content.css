@@ -1134,6 +1134,14 @@ ul#tabnav li a.redtext {
   color: var(--t-red) !important;
 }
 
+/* ===== WIN ROW HIGHLIGHT ===== */
+tr.tr-win-row td {
+  background-color: #f0fdf4 !important;
+}
+tr.tr-win-row:hover td {
+  background-color: #dcfce7 !important;
+}
+
 /* ===== COMPACT MODE ===== */
 body.tr-compact table th,
 body.tr-compact table td {

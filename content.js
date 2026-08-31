@@ -27,3 +27,33 @@ if (document.readyState === 'loading') {
 } else {
   swapLogo();
 }
+
+function highlightWinningRows() {
+  if (!/\/user\/student\//i.test(location.pathname)) return;
+
+  document.querySelectorAll('table').forEach(table => {
+    const headers = [...(table.querySelectorAll('thead th, thead td, tr:first-child th, tr:first-child td'))];
+    if (!headers.length) return;
+
+    let wIdx = -1, lIdx = -1;
+    headers.forEach((th, i) => {
+      const t = th.textContent.trim().toLowerCase();
+      if (wIdx === -1 && (t === 'w' || t === 'wins' || t === 'win')) wIdx = i;
+      if (lIdx === -1 && (t === 'l' || t === 'losses' || t === 'loss')) lIdx = i;
+    });
+    if (wIdx === -1 || lIdx === -1) return;
+
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      const w = parseFloat(cells[wIdx]?.textContent.trim());
+      const l = parseFloat(cells[lIdx]?.textContent.trim());
+      if (!isNaN(w) && !isNaN(l) && w > l) row.classList.add('tr-win-row');
+    });
+  });
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', highlightWinningRows, { once: true });
+} else {
+  highlightWinningRows();
+}
