@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "theme",
+  "version": "1.0.0",
+  "description": "A clean light theme for Tabroom pages.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "http://*.tabroom.com/*",
+    "https://*.tabroom.com/*",
+    "http://tabroom.com/*",
+    "https://tabroom.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*.tabroom.com/*",
+        "https://*.tabroom.com/*",
+        "http://tabroom.com/*",
+        "https://tabroom.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Tabroom Theme",
+    "default_popup": "popup.html"
+  }
+}

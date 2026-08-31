@@ -1,0 +1,137 @@
+html {
+  background: var(--tabroom-bg);
+}
+
+body.tabroom-theme-dark {
+  --tabroom-bg: #0f172a;
+  --tabroom-surface: #111827;
+  --tabroom-surface-alt: #1f2937;
+  --tabroom-panel: #0b1220;
+  --tabroom-text: #e5e7eb;
+  --tabroom-muted: #9ca3af;
+  --tabroom-border: #374151;
+  --tabroom-link: #93c5fd;
+  --tabroom-shadow: rgba(15, 23, 42, 0.4);
+}
+
+body.tabroom-theme-dark,
+body.tabroom-theme-dark * {
+  color-scheme: dark;
+}
+
+body.tabroom-theme-dark table,
+body.tabroom-theme-dark th,
+body.tabroom-theme-dark td,
+body.tabroom-theme-dark .card,
+body.tabroom-theme-dark .panel,
+body.tabroom-theme-dark .box,
+body.tabroom-theme-dark .section,
+body.tabroom-theme-dark .content,
+body.tabroom-theme-dark .page,
+body.tabroom-theme-dark .main,
+body.tabroom-theme-dark .sidebar {
+  background: var(--tabroom-surface) !important;
+  border-color: var(--tabroom-border) !important;
+  color: var(--tabroom-text) !important;
+}
+
+body.tabroom-theme-dark tbody tr:hover {
+  background: var(--tabroom-surface-alt) !important;
+}
+
+body.tabroom-theme-dark a,
+body.tabroom-theme-dark a:visited {
+  color: var(--tabroom-link) !important;
+}
+
+body.tabroom-theme-dark input,
+body.tabroom-theme-dark select,
+body.tabroom-theme-dark textarea,
+body.tabroom-theme-dark button,
+body.tabroom-theme-dark .button,
+body.tabroom-theme-dark .btn {
+  background: var(--tabroom-surface-alt) !important;
+  border-color: var(--tabroom-border) !important;
+  color: var(--tabroom-text) !important;
+}
+
+body.tabroom-theme-dark .tabroom-shell,
+body.tabroom-theme-dark .tabroom-card,
+body.tabroom-theme-dark .tabroom-panel {
+  background: var(--tabroom-surface) !important;
+  border-color: var(--tabroom-border) !important;
+  box-shadow: 0 8px 24px var(--tabroom-shadow) !important;
+}
+
+body {
+  background: var(--tabroom-bg) !important;
+  color: var(--tabroom-text) !important;
+}
+
+body * {
+  box-sizing: border-box;
+}
+
+body .tabroom-shell,
+body .tabroom-card,
+body .tabroom-panel,
+body .card,
+body .panel,
+body .box,
+body .section,
+body .content,
+body .page,
+body .main,
+body .sidebar,
+body .row,
+body .col,
+body .column {
+  background: var(--tabroom-surface) !important;
+  border: 1px solid var(--tabroom-border) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 20px var(--tabroom-shadow) !important;
+}
+
+body table,
+body th,
+body td {
+  border-color: var(--tabroom-border) !important;
+}
+
+body th {
+  background: var(--tabroom-panel) !important;
+  color: var(--tabroom-text) !important;
+  font-weight: 700 !important;
+}
+
+body td {
+  color: var(--tabroom-text) !important;
+}
+
+body tr:hover {
+  background: var(--tabroom-surface-alt) !important;
+}
+
+body a,
+body a:visited {
+  color: var(--tabroom-link) !important;
+}
+
+body input,
+body select,
+body textarea,
+body button,
+body .button,
+body .btn {
+  border: 1px solid var(--tabroom-border) !important;
+  border-radius: 10px !important;
+  background: var(--tabroom-surface) !important;
+  color: var(--tabroom-text) !important;
+}
+
+body button:hover,
+body .button:hover,
+body .btn:hover {
+  border-color: var(--tabroom-accent) !important;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--tabroom-accent) 16%, transparent) !important;
+}

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tabroom Theme</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="popup-shell">
+      <header>
+        <div>
+          <p class="eyebrow">Tabroom</p>
+          <h1>Theme</h1>
+        </div>
+      </header>
+
+      <label class="field">
+        <span>Theme</span>
+        <select id="themeMode">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Accent</span>
+        <input id="accentColor" type="color" value="#4f46e5" />
+      </label>
+
+      <label class="toggle-row">
+        <span>Compact mode</span>
+        <input id="compactMode" type="checkbox" />
+      </label>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
