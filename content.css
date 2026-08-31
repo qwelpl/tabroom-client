@@ -1354,6 +1354,21 @@ body table tr.tr-bye-row.even:hover td {
   width: 14px;
   text-align: center;
 }
+.tr-db-delete {
+  font-size: 13px !important;
+  background: transparent !important;
+  border: none !important;
+  color: var(--t-muted) !important;
+  cursor: pointer !important;
+  padding: 2px 4px !important;
+  height: auto !important;
+  width: auto !important;
+  border-radius: 4px !important;
+}
+.tr-db-delete:hover {
+  color: var(--t-red) !important;
+  background: var(--t-red-bg) !important;
+}
 .tr-db-ed-area {
   flex: 1;
   padding: 12px !important;
@@ -1372,36 +1387,41 @@ body table tr.tr-bye-row.even:hover td {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+  padding: 8px 16px !important;
+  height: auto !important;
+  width: auto !important;
+  border-radius: 20px !important;
   background: var(--t-accent) !important;
   border: none !important;
-  font-size: 20px;
-  cursor: pointer;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
   z-index: 999999;
   box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* Opp column note button */
 .tr-opp-note-btn {
   margin-left: 6px !important;
-  font-size: 11px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
   background: transparent !important;
-  border: none !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 4px !important;
+  color: var(--t-muted) !important;
   cursor: pointer !important;
-  opacity: 0.5;
-  padding: 0 2px !important;
+  opacity: 0.6;
+  padding: 1px 5px !important;
   vertical-align: middle !important;
   height: auto !important;
   width: auto !important;
-  line-height: 1 !important;
+  line-height: 1.4 !important;
 }
 .tr-opp-note-btn:hover {
   opacity: 1;
+  color: var(--t-accent) !important;
+  border-color: var(--t-accent) !important;
 }
 
 /* ===== TOURNAMENT SUMMARY PANEL ===== */

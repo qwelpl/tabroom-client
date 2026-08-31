@@ -125,7 +125,9 @@ function openDbEditor(panel, type, key, name) {
     panel.querySelector('.tr-db-list-view').style.display = 'none';
     const ed = panel.querySelector('.tr-db-editor');
     ed.style.display = '';
-    panel.querySelector('.tr-db-ed-name').textContent = entry.name;
+    const nameEl = panel.querySelector('.tr-db-ed-name');
+    nameEl.textContent = entry.name;
+    nameEl.dataset.key = key;
     const ta = panel.querySelector('.tr-db-ed-area');
     const st = panel.querySelector('.tr-db-ed-status');
     ta.value = entry.notes;
@@ -171,6 +173,7 @@ function getOrCreateDbPanel() {
         <button class="tr-db-back">← Back</button>
         <span class="tr-db-ed-name"></span>
         <span class="tr-db-ed-status"></span>
+        <button class="tr-db-delete" title="Delete note">Delete</button>
       </div>
       <textarea class="tr-db-ed-area" placeholder="Your notes…"></textarea>
     </div>
@@ -196,6 +199,19 @@ function getOrCreateDbPanel() {
     panel.querySelector('.tr-db-editor').style.display = 'none';
     panel.querySelector('.tr-db-list-view').style.display = '';
     renderDbList(panel, currentType, panel.querySelector('.tr-db-search').value);
+  });
+
+  panel.querySelector('.tr-db-delete').addEventListener('click', () => {
+    const key = panel.querySelector('.tr-db-ed-name').dataset.key;
+    if (!key) return;
+    dbLoad(currentType, db => {
+      delete db[key];
+      dbSave(currentType, db, () => {
+        panel.querySelector('.tr-db-editor').style.display = 'none';
+        panel.querySelector('.tr-db-list-view').style.display = '';
+        renderDbList(panel, currentType, panel.querySelector('.tr-db-search').value);
+      });
+    });
   });
 
   panel.querySelector('.tr-db-close').addEventListener('click', () => {
@@ -233,7 +249,7 @@ function injectDbFab() {
   const fab = document.createElement('button');
   fab.className = 'tr-db-fab';
   fab.title = 'Open notes database';
-  fab.textContent = '📋';
+  fab.textContent = 'Notes';
   fab.addEventListener('click', () => {
     const panel = getOrCreateDbPanel();
     const visible = panel.style.display !== 'none';
@@ -265,7 +281,7 @@ function injectOppNoteButtons() {
       const btn = document.createElement('button');
       btn.className = 'tr-opp-note-btn';
       btn.title = `Notes for ${name}`;
-      btn.textContent = '📝';
+      btn.textContent = '+';
       btn.addEventListener('click', e => {
         e.stopPropagation();
         openNotesFor('competitors', name);
