@@ -252,26 +252,31 @@ function renderDbList(panel, type, filter) {
 function openDbEditor(panel, type, key, name) {
   const ed = panel.querySelector('.tr-db-editor');
   const st = panel.querySelector('.tr-db-ed-status');
+  const nameEl = panel.querySelector('.tr-db-ed-name');
+  const ta = panel.querySelector('.tr-db-ed-area');
+
+  // Show editor immediately with loading state
+  panel.querySelector('.tr-db-list-view').style.display = 'none';
+  ed.style.display = '';
+  nameEl.textContent = name || key;
+  nameEl.dataset.key = key;
+  ta.value = '';
+  ta.disabled = true;
+  st.textContent = 'Loading…';
+  st.style.color = '';
+
   dbLoad(type, (db, err) => {
-    panel.querySelector('.tr-db-list-view').style.display = 'none';
-    ed.style.display = '';
+    ta.disabled = false;
     if (err) {
       st.textContent = `Load error: ${err}`;
       st.style.color = '#c0392b';
       return;
     }
-    st.style.color = '';
-    const entry = db[key] || { name: name || key, notes: '', updated: 0 };
-    if (entry.name === key && name) {
-      entry.name = name;
-      dbSetEntry(type, key, { ...entry }, () => {});
-    }
-    const nameEl = panel.querySelector('.tr-db-ed-name');
-    nameEl.textContent = entry.name;
-    nameEl.dataset.key = key;
-    const ta = panel.querySelector('.tr-db-ed-area');
-    ta.value = entry.notes;
     st.textContent = '';
+    const entry = db[key] || { name: name || key, notes: '', updated: 0 };
+    if (entry.name === key && name) entry.name = name;
+    nameEl.textContent = entry.name;
+    ta.value = entry.notes || '';
     let timer;
     ta.oninput = () => {
       st.textContent = '●';
@@ -373,22 +378,11 @@ function openNotesFor(type, name) {
   panel.style.display = '';
   document.querySelector('.tr-db-fab')?.style.setProperty('display', 'none');
 
-  // switch tab
   panel.querySelectorAll('.tr-db-tab').forEach(t => {
-    const active = t.dataset.type === type;
-    t.classList.toggle('active', active);
+    t.classList.toggle('active', t.dataset.type === type);
   });
-  panel.querySelector('.tr-db-list-view').style.display = 'none';
 
-  const key = dbNormKey(name);
-  dbLoad(type, (db, err) => {
-    if (err || !db[key]) {
-      dbSetEntry(type, key, { name, notes: '', updated: Date.now() }, () =>
-        openDbEditor(panel, type, key, name));
-    } else {
-      openDbEditor(panel, type, key, name);
-    }
-  });
+  openDbEditor(panel, type, dbNormKey(name), name);
 }
 
 function injectDbFab() {
