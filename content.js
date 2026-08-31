@@ -4,6 +4,15 @@ function apply(settings) {
   }
 }
 
+function swapLogo() {
+  const img = document.querySelector('#logo img');
+  if (img) {
+    img.src = chrome.runtime.getURL('logo-light.jpg');
+    img.style.maxHeight = '56px';
+    img.style.width = 'auto';
+  }
+}
+
 chrome.storage.sync.get({ compact: false }, apply);
 
 chrome.storage.onChanged.addListener((changes, area) => {
@@ -11,3 +20,9 @@ chrome.storage.onChanged.addListener((changes, area) => {
     apply({ compact: changes.compact.newValue });
   }
 });
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', swapLogo, { once: true });
+} else {
+  swapLogo();
+}

@@ -26,5 +26,14 @@
   "action": {
     "default_title": "Tabroom Theme",
     "default_popup": "popup.html"
-  }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["logo-light.jpg"],
+      "matches": [
+        "http://*.tabroom.com/*",
+        "https://*.tabroom.com/*"
+      ]
+    }
+  ]
 }
