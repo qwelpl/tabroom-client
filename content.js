@@ -83,17 +83,58 @@ if (document.readyState === 'loading') {
 // ===== NOTES + OPPONENT PERFORMANCE =====
 
 // ===== NOTES DATABASE =====
-
-const TR_DB_KEYS = { competitors: 'tr_db_v1_competitors', judges: 'tr_db_v1_judges' };
+// Storage: chrome.storage.sync, one key per note, namespaced by Tabroom email
+// Key format: tr_nc_{emailkey}_{notekey}  (competitors)
+//             tr_nj_{emailkey}_{notekey}  (judges)
 
 function dbNormKey(name) { return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_'); }
 
-function dbLoad(type, cb) {
-  chrome.storage.local.get({ [TR_DB_KEYS[type]]: {} }, d => cb(d[TR_DB_KEYS[type]]));
+let _emailKey = null;
+function getEmailKey() {
+  if (_emailKey) return _emailKey;
+  const el = document.querySelector('#mobile_email') ||
+    document.querySelector('#toprow a[href*="user/home"]');
+  const text = (el?.textContent || '').trim();
+  const m = text.match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
+  // also try scanning toprow for email pattern
+  const topText = document.querySelector('#toprow')?.textContent || '';
+  const m2 = topText.match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
+  const email = (m || m2)?.[0] || 'anon';
+  _emailKey = email.toLowerCase().replace(/[^a-z0-9]/g, '_');
+  return _emailKey;
 }
 
-function dbSave(type, data, cb) {
-  chrome.storage.local.set({ [TR_DB_KEYS[type]]: data }, cb);
+function storePrefix(type) {
+  return `tr_n${type === 'competitors' ? 'c' : 'j'}_${getEmailKey()}_`;
+}
+
+function dbLoad(type, cb) {
+  chrome.storage.sync.get(null, all => {
+    const prefix = storePrefix(type);
+    const db = {};
+    for (const [k, v] of Object.entries(all)) {
+      if (k.startsWith(prefix) && v?.name) db[k.slice(prefix.length)] = v;
+    }
+    cb(db);
+  });
+}
+
+function dbSave(type, db, cb) {
+  const prefix = storePrefix(type);
+  chrome.storage.sync.get(null, all => {
+    const existing = Object.keys(all).filter(k => k.startsWith(prefix));
+    const toSet = {};
+    const newKeys = new Set();
+    for (const [k, v] of Object.entries(db)) {
+      toSet[prefix + k] = v;
+      newKeys.add(prefix + k);
+    }
+    const toRemove = existing.filter(k => !newKeys.has(k));
+    chrome.storage.sync.set(toSet, () => {
+      if (toRemove.length) chrome.storage.sync.remove(toRemove, cb);
+      else cb?.();
+    });
+  });
 }
 
 function renderDbList(panel, type, filter) {
