@@ -691,8 +691,8 @@ a.buttonwhite.invert:hover {
 /* Color-keyed outline variants */
 .bluetext.buttonwhite, a.bluetext.buttonwhite, span.bluetext.buttonwhite {
   color: var(--t-accent) !important;
-  border-color: #bfdbfe !important;
-  background: #eff6ff !important;
+  border-color: var(--t-border) !important;
+  background: var(--t-white) !important;
 }
 .bluetext.buttonwhite:hover, a.bluetext.buttonwhite:hover,
 .bluetext.buttonwhite.invert, .bluetext.invert {
@@ -866,8 +866,8 @@ div.main span.buttonwhite.invert {
 div.main a.buttonwhite.bluetext,
 div.main span.buttonwhite.bluetext {
   color: var(--t-accent) !important;
-  border-color: #bfdbfe !important;
-  background: #eff6ff !important;
+  border-color: var(--t-border) !important;
+  background: var(--t-white) !important;
 }
 div.main a.buttonwhite.redtext,
 div.main span.buttonwhite.redtext {
