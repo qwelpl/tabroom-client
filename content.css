@@ -70,6 +70,13 @@ html, body {
   line-height: 1.5 !important;
 }
 
+h1, h2, h3, h4, h5, h6,
+.categoryhead, .sectionhead, .paneltitle,
+label, th, td.category, .smtext {
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+}
+
 #overlay {
   background: var(--t-bg) !important;
   background-image: none !important;
@@ -91,23 +98,30 @@ html, body {
   max-width: 1536px;
   margin: 0 auto;
   max-height: none !important;
-  min-height: 80px !important;
+  min-height: 0 !important;
   align-items: center !important;
 }
 
 #logo {
   width: auto !important;
-  min-width: 220px !important;
+  min-width: 180px !important;
   padding: 0 !important;
   flex-shrink: 0 !important;
+  line-height: 0 !important;
+}
+
+#logo a {
+  display: block !important;
+  line-height: 0 !important;
 }
 
 #logo a img {
   display: block !important;
-  height: 110px !important;
+  height: 56px !important;
   width: auto !important;
   max-width: none !important;
   max-height: none !important;
+  vertical-align: bottom !important;
 }
 
 /* Header icon links */
@@ -215,8 +229,8 @@ div.menu .sidenote h5 {
   color: var(--t-muted) !important;
   font-size: 11px !important;
   font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.06em !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
   margin: 10px 0 6px !important;
   font-family: inherit !important;
 }
@@ -325,8 +339,8 @@ div.main h6, div.mainfull h6 {
   font-weight: 600 !important;
   color: var(--t-muted) !important;
   font-family: inherit !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
 }
 
 /* Content panels */
@@ -365,8 +379,8 @@ tr.yellowrow td {
   color: var(--t-muted) !important;
   font-size: 11px !important;
   font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.05em !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
   padding: 8px 12px !important;
   border: none !important;
   border-bottom: 1px solid var(--t-border) !important;
