@@ -409,6 +409,7 @@ table td {
   padding: 8px 12px !important;
   border: none !important;
   border-bottom: 1px solid var(--t-border-faint) !important;
+  vertical-align: middle !important;
 }
 
 /* Alternating rows via tabroom's .odd/.even classes */
