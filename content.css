@@ -1375,8 +1375,9 @@ body table tr.tr-bye-row.even:hover td {
 .tr-db-ed-status {
   font-size: 12px;
   color: var(--t-accent);
-  width: 14px;
+  min-width: 14px;
   text-align: center;
+  white-space: nowrap;
 }
 .tr-db-delete {
   font-size: 13px !important;
