@@ -29,7 +29,7 @@ if (document.readyState === 'loading') {
 }
 
 function highlightWinningRows() {
-  if (!/\/user\/student\//i.test(location.pathname)) return;
+  if (!/\/user\/student\//i.test(location.pathname) && !/\/user\/student\/index/i.test(location.pathname)) return;
 
   document.querySelectorAll('table').forEach(table => {
     const headers = [...table.querySelectorAll('thead th, thead td, tr:first-child th, tr:first-child td')];
@@ -84,10 +84,21 @@ if (document.readyState === 'loading') {
 
 function getPageCtx() {
   const p = new URLSearchParams(location.search);
-  const path = location.pathname;
   if (p.has('judge_person_id')) return { type: 'judge', id: p.get('judge_person_id'), label: 'Judge' };
   if (p.has('student_id'))      return { type: 'student', id: p.get('student_id'), label: 'Competitor', tournId: p.get('tourn_id') };
   if (p.has('entry_id'))        return { type: 'entry', id: p.get('entry_id'), label: 'Entry' };
+
+  // student/index.mhtml — extract student_id from links on page
+  if (/\/user\/student\//.test(location.pathname)) {
+    const link = document.querySelector('a[href*="student_id="]');
+    if (link) {
+      const id = new URLSearchParams(link.href.split('?')[1]).get('student_id');
+      if (id) return { type: 'student', id, label: 'Competitor' };
+    }
+    // fallback: use pathname as stable key
+    return { type: 'student', id: 'me', label: 'Competitor' };
+  }
+
   return null;
 }
 
@@ -138,6 +149,7 @@ function injectNotes(ctx) {
 
 function injectTournamentSummary() {
   if (!/\/user\/student\//i.test(location.pathname)) return;
+
   if (document.querySelector('.tr-summary-panel')) return;
 
   const tables = [...document.querySelectorAll('table')];
