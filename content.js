@@ -176,9 +176,17 @@ function migrateOldNotes() {
 
 function dbLoad(type, cb) {
   fetch(fbPath(type))
-    .then(r => r.json())
-    .then(data => cb(data && typeof data === 'object' ? data : {}))
-    .catch(() => cb({}));
+    .then(async r => {
+      if (!r.ok && r.status !== 404) {
+        const body = await r.json().catch(() => null);
+        const msg = body?.error || `HTTP ${r.status}`;
+        cb({}, msg);
+        return;
+      }
+      const data = await r.json().catch(() => null);
+      cb(data && typeof data === 'object' ? data : {}, null);
+    })
+    .catch(err => cb({}, err.message || 'Network error'));
 }
 
 function dbSetEntry(type, key, value, cb) {
@@ -186,17 +194,33 @@ function dbSetEntry(type, key, value, cb) {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(value)
-  }).then(() => cb?.()).catch(() => cb?.());
+  })
+    .then(async r => {
+      if (!r.ok) {
+        const body = await r.json().catch(() => null);
+        cb?.(false, body?.error || `HTTP ${r.status}`);
+        return;
+      }
+      cb?.(true, null);
+    })
+    .catch(err => cb?.(false, err.message || 'Network error'));
 }
 
 function dbDeleteEntry(type, key, cb) {
   fetch(fbPath(type, key), { method: 'DELETE' })
-    .then(() => cb?.()).catch(() => cb?.());
+    .then(r => cb?.(r.ok, r.ok ? null : `HTTP ${r.status}`))
+    .catch(err => cb?.(false, err.message || 'Network error'));
 }
 
 function renderDbList(panel, type, filter) {
-  dbLoad(type, db => {
+  dbLoad(type, (db, err) => {
     const list = panel.querySelector('.tr-db-list');
+    if (err) {
+      const hint = (err.includes('Permission') || err.includes('401') || err.includes('403'))
+        ? ' — Firebase rules blocking access' : '';
+      list.innerHTML = `<div class="tr-db-error">Sync error: ${err}${hint}</div>`;
+      return;
+    }
     const entries = Object.values(db)
       .filter(e => !filter || e.name.toLowerCase().includes(filter.toLowerCase()))
       .sort((a, b) => (b.updated || 0) - (a.updated || 0));
@@ -218,30 +242,43 @@ function renderDbList(panel, type, filter) {
 }
 
 function openDbEditor(panel, type, key, name) {
-  dbLoad(type, db => {
+  const ed = panel.querySelector('.tr-db-editor');
+  const st = panel.querySelector('.tr-db-ed-status');
+  dbLoad(type, (db, err) => {
+    panel.querySelector('.tr-db-list-view').style.display = 'none';
+    ed.style.display = '';
+    if (err) {
+      st.textContent = `Load error: ${err}`;
+      st.style.color = '#c0392b';
+      return;
+    }
+    st.style.color = '';
     const entry = db[key] || { name: name || key, notes: '', updated: 0 };
     if (entry.name === key && name) {
       entry.name = name;
       dbSetEntry(type, key, { ...entry }, () => {});
     }
-    panel.querySelector('.tr-db-list-view').style.display = 'none';
-    const ed = panel.querySelector('.tr-db-editor');
-    ed.style.display = '';
     const nameEl = panel.querySelector('.tr-db-ed-name');
     nameEl.textContent = entry.name;
     nameEl.dataset.key = key;
     const ta = panel.querySelector('.tr-db-ed-area');
-    const st = panel.querySelector('.tr-db-ed-status');
     ta.value = entry.notes;
     st.textContent = '';
     let timer;
     ta.oninput = () => {
       st.textContent = '●';
+      st.style.color = '';
       clearTimeout(timer);
       timer = setTimeout(() => {
-        dbSetEntry(type, key, { ...entry, notes: ta.value, updated: Date.now() }, () => {
-          st.textContent = '✓';
-          setTimeout(() => st.textContent = '', 1500);
+        dbSetEntry(type, key, { ...entry, notes: ta.value, updated: Date.now() }, (ok, saveErr) => {
+          if (ok) {
+            st.textContent = '✓';
+            st.style.color = '';
+          } else {
+            st.textContent = `Save failed: ${saveErr}`;
+            st.style.color = '#c0392b';
+          }
+          setTimeout(() => { st.textContent = ''; st.style.color = ''; }, 3000);
         });
       }, 600);
     };
@@ -263,6 +300,7 @@ function getOrCreateDbPanel() {
       </div>
       <button class="tr-db-close" title="Close">×</button>
     </div>
+    <div class="tr-db-sync-info">Syncing as: <span class="tr-db-email-key"></span></div>
     <div class="tr-db-list-view">
       <input class="tr-db-search" type="text" placeholder="Search…" />
       <div class="tr-db-list"></div>
@@ -277,6 +315,7 @@ function getOrCreateDbPanel() {
       <textarea class="tr-db-ed-area" placeholder="Your notes…"></textarea>
     </div>
   `;
+  panel.querySelector('.tr-db-email-key').textContent = getEmailKey();
 
   let currentType = 'competitors';
 
@@ -334,8 +373,8 @@ function openNotesFor(type, name) {
   panel.querySelector('.tr-db-list-view').style.display = 'none';
 
   const key = dbNormKey(name);
-  dbLoad(type, db => {
-    if (!db[key]) {
+  dbLoad(type, (db, err) => {
+    if (err || !db[key]) {
       dbSetEntry(type, key, { name, notes: '', updated: Date.now() }, () =>
         openDbEditor(panel, type, key, name));
     } else {
