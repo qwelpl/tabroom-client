@@ -1135,10 +1135,16 @@ ul#tabnav li a.redtext {
 }
 
 /* ===== WIN ROW HIGHLIGHT ===== */
-tr.tr-win-row td {
+body table tr.tr-win-row td,
+body table tr.tr-win-row.odd td,
+body table tr.tr-win-row.even td,
+body table tr.tr-win-row.oddrow td,
+body table tr.tr-win-row.evenrow td {
   background-color: #f0fdf4 !important;
 }
-tr.tr-win-row:hover td {
+body table tr.tr-win-row:hover td,
+body table tr.tr-win-row.odd:hover td,
+body table tr.tr-win-row.even:hover td {
   background-color: #dcfce7 !important;
 }
 

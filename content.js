@@ -47,9 +47,9 @@ function highlightWinningRows() {
       /result|judge/i.test(th.textContent)
     );
 
-    table.querySelectorAll('tbody tr').forEach(row => {
+    table.querySelectorAll('tr').forEach(row => {
       const cells = row.querySelectorAll('td');
-      if (!cells.length) return;
+      if (!cells.length) return; // skip header rows (th-only)
 
       let w = 0, l = 0;
 
@@ -57,7 +57,6 @@ function highlightWinningRows() {
         w = parseFloat(cells[wIdx]?.textContent.trim()) || 0;
         l = parseFloat(cells[lIdx]?.textContent.trim()) || 0;
       } else {
-        // count standalone W / L in results column or whole row
         const target = resultsIdx !== -1 ? cells[resultsIdx] : row;
         const text = target.textContent;
         w = (text.match(/\bW\b/g) || []).length;
