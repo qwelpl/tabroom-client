@@ -1,192 +1,173 @@
+/* Tabroom Minimalist Light Theme */
+
 :root {
-  --theme-accent: #0d6b89;
-  --theme-accent-soft: rgba(13, 107, 137, 0.1);
-  --theme-page: #e8f0f3;
-  --theme-header: #063b4d;
-  --theme-surface: #ffffff;
-  --theme-surface-muted: #f4f7f8;
-  --theme-border: #c9d5da;
-  --theme-text: #1d2930;
-  --theme-muted: #5d6b72;
-  --theme-row: #eef2f4;
-  --theme-highlight: #e4f2f7;
+  --t-bg: #f8fafc;
+  --t-white: #ffffff;
+  --t-border: #e2e8f0;
+  --t-border-faint: #f1f5f9;
+  --t-text: #0f172a;
+  --t-muted: #64748b;
+  --t-accent: #2563eb;
+  --t-accent-dark: #1d4ed8;
+  --t-hover: #eff6ff;
+  --t-row: #f8fafc;
+  --t-red: #dc2626;
+  --t-red-bg: #fef2f2;
+  --t-green: #16a34a;
+  --t-green-bg: #f0fdf4;
+  --t-orange: #ea580c;
+  --t-blue-bg: #eff6ff;
 }
 
-html,
-body {
-  min-height: 100%;
-  background: var(--theme-page) !important;
-}
-
-body {
-  color: var(--theme-text) !important;
-  font-family: "Segoe UI", Tahoma, sans-serif !important;
-  line-height: 1.45 !important;
+/* ===== BASE ===== */
+html, body {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+  line-height: 1.5 !important;
 }
 
 #overlay {
-  min-height: 100vh;
-  background: none !important;
+  background: var(--t-bg) !important;
+  background-image: none !important;
 }
 
+/* ===== HEADER ===== */
 #header {
+  background: var(--t-white) !important;
+  border-bottom: 1px solid var(--t-border) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+  padding: 0 clamp(16px, 4vw, 60px) !important;
   width: 100% !important;
   max-width: none !important;
   min-width: 0 !important;
-  padding: 0 clamp(20px, 5vw, 80px) !important;
-  background: var(--theme-header) !important;
+  box-sizing: border-box !important;
 }
 
 #headerarch {
   max-width: 1536px;
-  min-height: 86px;
-  max-height: none !important;
   margin: 0 auto;
-  align-items: center !important;
 }
 
-#logo {
-  width: 275px !important;
-  padding: 10px 0 !important;
-}
-
-#logo a img {
-  display: block;
-  max-width: 245px !important;
-  max-height: 68px !important;
-}
-
-#toprow {
-  align-items: center;
-}
-
+/* Header icon links */
 #toprow a,
 #toprow a:visited {
-  color: #dcecf1 !important;
-}
-
-#search {
-  border: 1px solid rgba(255, 255, 255, 0.24) !important;
-  border-radius: 5px !important;
-  background: rgba(255, 255, 255, 0.12) !important;
-}
-
-#searchtext {
-  color: #ffffff !important;
+  color: var(--t-muted) !important;
   background: transparent !important;
-  border: 0 !important;
+  border: none !important;
+}
+
+#toprow a:hover {
+  color: var(--t-text) !important;
+  background: var(--t-bg) !important;
+}
+
+/* Notification badge */
+#inbox_count {
+  background-color: var(--t-red) !important;
+  color: #ffffff !important;
+}
+
+/* Preserve notification bell colors */
+#push-bell.redtext { color: var(--t-red) !important; }
+#push-bell.greentext { color: var(--t-green) !important; }
+#tabroom_inbox.orangetext { color: var(--t-orange) !important; }
+
+/* User email */
+#tabroom_edlee,
+#mobile_email {
+  color: var(--t-muted) !important;
+  font-size: 12px !important;
+}
+
+/* Search box */
+#search {
+  background: var(--t-bg) !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 6px !important;
+}
+
+#searchtext,
+#search input[type="text"] {
+  color: var(--t-text) !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 #searchtext::placeholder {
-  color: #c0d5dc !important;
+  color: var(--t-muted) !important;
+  font-size: 12px !important;
 }
 
-#nav {
-  float: none !important;
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  max-width: 1536px;
-  margin: 0 auto !important;
-  padding: 0 0 10px !important;
+#search button,
+#mobile_search button {
+  background: transparent !important;
+  border: none !important;
+  color: var(--t-muted) !important;
+  box-shadow: none !important;
 }
 
-#nav li.top {
-  float: none !important;
-}
-
-#nav li a.top_link,
+/* ===== NAV ===== */
 #nav li a.top_link span.down {
-  width: auto !important;
-}
-
-#nav li a.top_link span.down {
-  padding: 8px 22px !important;
-  border-radius: 4px 4px 0 0;
-  background: rgba(255, 255, 255, 0.12) !important;
-  color: #f8fbfc !important;
+  background: transparent !important;
+  color: var(--t-muted) !important;
+  padding: 6px 14px !important;
+  border-radius: 5px !important;
 }
 
 #nav li:hover a.top_link span.down {
-  background: var(--theme-accent) !important;
-  color: #ffffff !important;
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
 }
 
+/* ===== LAYOUT ===== */
 #wrapper {
+  background: var(--t-bg) !important;
   width: min(1536px, 100%) !important;
   max-width: none !important;
-  min-height: calc(100vh - 120px) !important;
+  min-width: 0 !important;
 }
 
 #content {
-  min-height: calc(100vh - 120px);
-  background: var(--theme-page) !important;
+  background: var(--t-bg) !important;
 }
 
-#content > .main,
-#content > .mainfull {
-  background: var(--theme-surface) !important;
-}
-
-div.main,
-div.mainfull {
-  color: var(--theme-text) !important;
-  padding: 26px clamp(20px, 3vw, 48px) 44px !important;
-}
-
-div.main h1,
-div.main h2,
-div.main h3,
-div.mainfull h1,
-div.mainfull h2,
-div.mainfull h3 {
-  color: var(--theme-text) !important;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif !important;
-  font-weight: 700 !important;
-  letter-spacing: -0.025em;
-}
-
-div.main h1,
-div.mainfull h1 {
-  margin: 0 0 20px !important;
-  font-size: clamp(30px, 3vw, 44px) !important;
-}
-
-div.main h2,
-div.mainfull h2 {
-  margin-top: 26px !important;
-  font-size: 25px !important;
-}
-
+/* ===== SIDEBAR ===== */
 div.menu {
-  width: 27% !important;
-  padding: 0 14px 30px !important;
+  background: var(--t-bg) !important;
+  padding: 12px 10px 24px !important;
 }
 
 div.menu .sidenote {
-  width: 100% !important;
-  margin: 14px 0 !important;
-  padding: 14px !important;
-  background: var(--theme-surface) !important;
-  border: 1px solid var(--theme-border) !important;
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
   border-radius: 8px !important;
-  box-shadow: 0 2px 7px rgba(25, 55, 65, 0.06) !important;
+  box-shadow: none !important;
+  padding: 14px 12px !important;
+  width: 100% !important;
+  margin: 0 0 10px !important;
 }
 
 div.menu .sidenote h3,
 div.menu .sidenote h4,
 div.menu .sidenote h5 {
-  color: var(--theme-text) !important;
-  font-family: "Trebuchet MS", "Segoe UI", sans-serif !important;
+  color: var(--t-muted) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  margin: 10px 0 6px !important;
+  font-family: inherit !important;
 }
 
-div.menu .sidenote h4 {
-  margin: 14px 0 5px !important;
-  font-size: 20px !important;
+div.menu .sidenote h3:first-child,
+div.menu .sidenote h4:first-child,
+div.menu .sidenote h5:first-child {
+  margin-top: 0 !important;
 }
 
 div.menu .sidenote a {
-  color: var(--theme-accent) !important;
+  color: var(--t-accent) !important;
 }
 
 div.menu .sidenote select,
@@ -194,157 +175,560 @@ div.menu .sidenote .select2-container {
   width: 100% !important;
 }
 
+/* ===== HIDE ADS ===== */
 .tabad_carousel {
-  width: 73% !important;
-  background: #dce8ec !important;
+  display: none !important;
 }
 
-.tabad_carousel img {
-  max-height: 100px;
+/* ===== MAIN CONTENT ===== */
+div.main,
+div.mainfull {
+  background: var(--t-white) !important;
+  color: var(--t-text) !important;
+  padding: 24px 28px 40px !important;
 }
 
+div.main h1, div.mainfull h1 {
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: var(--t-text) !important;
+  letter-spacing: -0.015em !important;
+  margin: 0 0 16px !important;
+  font-family: inherit !important;
+  text-transform: none !important;
+}
+
+div.main h2, div.mainfull h2 {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: var(--t-text) !important;
+  font-family: inherit !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  margin-top: 24px !important;
+  line-height: 1.4 !important;
+}
+
+div.main h3, div.mainfull h3 {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--t-text) !important;
+  font-family: inherit !important;
+  text-transform: none !important;
+}
+
+div.main h4, div.mainfull h4 {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--t-text) !important;
+  font-family: inherit !important;
+}
+
+div.main h5, div.mainfull h5 {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--t-text) !important;
+  font-family: inherit !important;
+}
+
+div.main h6, div.mainfull h6 {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--t-muted) !important;
+  font-family: inherit !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* Content panels */
+.blank, .blankfull, .blankpart {
+  background: var(--t-white) !important;
+  border-bottom: 1px solid var(--t-border) !important;
+}
+
+.blankalert {
+  background: var(--t-white) !important;
+  border-bottom: 1px solid var(--t-border) !important;
+}
+
+/* ===== TABLES ===== */
 table {
-  width: 100%;
-  border: 1px solid var(--theme-border) !important;
-  border-collapse: separate !important;
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  border-collapse: collapse !important;
   border-spacing: 0 !important;
-  overflow: hidden;
-  background: var(--theme-surface) !important;
+  width: 100% !important;
+}
+
+/* Reset all table rows from tabroom's yellow default */
+tr {
+  background-color: var(--t-white) !important;
+}
+
+thead {
+  border-top: 1px solid var(--t-border) !important;
 }
 
 table th,
-table td {
-  padding: 9px 11px !important;
-  border-right: 1px solid #e1e8eb !important;
-  border-bottom: 1px solid var(--theme-border) !important;
-  color: var(--theme-text) !important;
-  font-size: 13px !important;
-}
-
-table th {
-  background: #e6eef1 !important;
-  color: #263a43 !important;
-  font-weight: 700 !important;
-}
-
-table tbody tr:nth-child(even) {
-  background: var(--theme-row) !important;
-}
-
-table tbody tr:hover {
-  background: var(--theme-highlight) !important;
-}
-
-input,
-select,
-textarea,
-.select2-selection {
-  border: 1px solid #b9c8ce !important;
-  border-radius: 4px !important;
-  background: var(--theme-surface-muted) !important;
-  color: var(--theme-text) !important;
-}
-
-button,
-.button,
-.btn,
-a.button,
-a.buttonwhite {
-  border: 1px solid var(--theme-accent) !important;
-  border-radius: 4px !important;
-  background: var(--theme-accent) !important;
-  color: #ffffff !important;
+tr.yellowrow th,
+tr.yellowrow td {
+  background: var(--t-bg) !important;
+  color: var(--t-muted) !important;
+  font-size: 11px !important;
   font-weight: 600 !important;
-  box-shadow: none !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  padding: 8px 12px !important;
+  border: none !important;
+  border-bottom: 1px solid var(--t-border) !important;
+  font-family: inherit !important;
 }
 
-button:hover,
-.button:hover,
-.btn:hover,
-a.button:hover,
-a.buttonwhite:hover {
-  background: #09536a !important;
+/* Remove sort background images, use text indicators */
+th.sortable {
+  background-image: none !important;
+  padding-right: 20px !important;
+  cursor: pointer !important;
+}
+th.sortdown { background-image: none !important; }
+th.sortup { background-image: none !important; }
+
+table td {
+  color: var(--t-text) !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+  border: none !important;
+  border-bottom: 1px solid var(--t-border-faint) !important;
+}
+
+/* Alternating rows via tabroom's .odd/.even classes */
+tr.odd td, .odd tr td, tr.oddrow td {
+  background-color: var(--t-row) !important;
+}
+
+tr.even td, .even tr td, tr.evenrow td {
+  background-color: var(--t-white) !important;
+}
+
+/* Table row hover */
+tbody tr:hover td,
+tr.odd:hover td,
+tr.even:hover td {
+  background-color: var(--t-hover) !important;
+}
+
+/* Semantic row colors — preserve but lighten */
+tr.lird td, tr.lirdrow td, tr.redrow td,
+.lird td, .lirdrow td {
+  background-color: var(--t-red-bg) !important;
+  color: var(--t-red) !important;
+  border-color: #fecaca !important;
+}
+
+tr.borderred td, tr.borderred th {
+  background-color: var(--t-red-bg) !important;
+  color: var(--t-red) !important;
+  border-top: 1px solid #fecaca !important;
+  border-bottom: 1px solid #fecaca !important;
+}
+
+.liblrow td, .libl td,
+tr.liblrow td, tr.libl td {
+  background-color: var(--t-blue-bg) !important;
+}
+
+tr.winner_row td, .winner_row td {
+  background-color: var(--t-green-bg) !important;
+  color: var(--t-green) !important;
+}
+
+/* ===== FORM ROW SECTIONS ===== */
+/* .row is tabroom's settings/form row pattern */
+.row.odd, .odd.row,
+div.odd, span.odd {
+  background-color: var(--t-row) !important;
+  border-top: 1px solid var(--t-border-faint) !important;
+  border-bottom: 1px solid var(--t-border-faint) !important;
+}
+
+.row.even, .even.row,
+div.even, span.even {
+  background-color: var(--t-white) !important;
+  border-top: 1px solid var(--t-border-faint) !important;
+  border-bottom: 1px solid var(--t-border-faint) !important;
+}
+
+.plainback, .plainbackrow {
+  background-color: var(--t-white) !important;
+}
+
+/* ===== SECTION DIVIDERS ===== */
+.blueborderbottom,
+.blueborderbottom td,
+.blueborderbottom th,
+p.blueborderbottom,
+span.blueborderbottom,
+div.blueborderbottom {
+  border-bottom: 1px solid var(--t-border) !important;
+}
+
+.ltblueborderbottom,
+.liblueborderbottom {
+  border-bottom: 1px solid var(--t-border) !important;
+}
+
+/* ===== LINKS ===== */
+a, a:visited {
+  color: var(--t-accent) !important;
+}
+
+a:hover {
+  color: var(--t-accent-dark) !important;
+}
+
+#footer a,
+#footer a:visited {
+  color: var(--t-accent) !important;
+}
+
+/* ===== BUTTONS ===== */
+
+/* --- Header icon buttons --- */
+#toprow button,
+#search button,
+#mobile_search button {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--t-muted) !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* --- Primary submit/action buttons --- */
+.row a.submit,
+a.submit,
+button.submit,
+a.buttonwhite.submit,
+input[type="submit"],
+input[type="button"] {
+  background: var(--t-accent) !important;
+  border: 1px solid var(--t-accent) !important;
+  border-radius: 5px !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  font-family: inherit !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+.row a.submit:hover,
+a.submit:hover,
+button.submit:hover,
+input[type="submit"]:hover,
+input[type="button"]:hover {
+  background: var(--t-accent-dark) !important;
+  border-color: var(--t-accent-dark) !important;
+  opacity: 1 !important;
+}
+
+/* Red variant submit */
+input[type="submit"].red,
+input[type="submit"].redtext,
+.row a.submit.redtext,
+a.submit.redtext,
+button.submit.redtext {
+  background: var(--t-red) !important;
+  border-color: var(--t-red) !important;
+}
+
+/* Disabled */
+input[type="submit"]:disabled {
+  background: var(--t-muted) !important;
+  border-color: var(--t-muted) !important;
+  cursor: not-allowed !important;
+}
+
+/* --- Outline/ghost buttons (.buttonwhite) --- */
+.buttonwhite,
+a.buttonwhite,
+button.buttonwhite,
+span.buttonwhite {
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 5px !important;
+  color: var(--t-text) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.buttonwhite:hover,
+a.buttonwhite:hover,
+button.buttonwhite:hover {
+  background: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  opacity: 1 !important;
+}
+
+/* Inverted = filled (used as CTA) */
+.buttonwhite.invert,
+a.buttonwhite.invert,
+button.buttonwhite.invert {
+  background: var(--t-accent) !important;
+  border-color: var(--t-accent) !important;
   color: #ffffff !important;
 }
 
-a,
-a:visited {
-  color: var(--theme-accent) !important;
+.buttonwhite.invert:hover,
+a.buttonwhite.invert:hover {
+  background: var(--t-accent-dark) !important;
+  border-color: var(--t-accent-dark) !important;
+  opacity: 1 !important;
 }
 
-body.tabroom-theme-compact table th,
-body.tabroom-theme-compact table td {
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
+/* Color-specific buttonwhite variants */
+.bluetext.buttonwhite,
+a.bluetext.buttonwhite {
+  color: var(--t-accent) !important;
+  border-color: var(--t-accent) !important;
 }
 
-body.tabroom-theme-dark {
-  --theme-page: #101c25;
-  --theme-header: #061f2a;
-  --theme-surface: #172630;
-  --theme-surface-muted: #1d303b;
-  --theme-border: #3c515c;
-  --theme-text: #e8f0f3;
-  --theme-muted: #afc0c7;
-  --theme-row: #1c2d37;
-  --theme-highlight: #234453;
+.bluetext.buttonwhite:hover,
+a.bluetext.buttonwhite:hover,
+.bluetext.buttonwhite.invert,
+.bluetext.invert {
+  background: var(--t-accent) !important;
+  border-color: var(--t-accent) !important;
+  color: #ffffff !important;
 }
 
-body.tabroom-theme-dark #content,
-body.tabroom-theme-dark div.main,
-body.tabroom-theme-dark div.mainfull,
-body.tabroom-theme-dark div.menu .sidenote,
-body.tabroom-theme-dark table {
-  background: var(--theme-surface) !important;
+.redtext.buttonwhite,
+a.redtext.buttonwhite {
+  color: var(--t-red) !important;
+  border-color: var(--t-red) !important;
+  background: var(--t-white) !important;
 }
 
-body.tabroom-theme-dark table th,
-body.tabroom-theme-dark input,
-body.tabroom-theme-dark select,
-body.tabroom-theme-dark textarea,
-body.tabroom-theme-dark .select2-selection {
-  background: #203640 !important;
-  color: var(--theme-text) !important;
+.redtext.buttonwhite:hover,
+a.redtext.buttonwhite:hover,
+.redtext.buttonwhite.invert,
+.redtext.invert {
+  background: var(--t-red) !important;
+  border-color: var(--t-red) !important;
+  color: #ffffff !important;
 }
 
+.greentext.buttonwhite,
+a.greentext.buttonwhite {
+  color: var(--t-green) !important;
+  border-color: var(--t-green) !important;
+  background: var(--t-white) !important;
+}
+
+.greentext.buttonwhite:hover,
+a.greentext.buttonwhite:hover,
+.greentext.buttonwhite.invert,
+.greentext.invert {
+  background: var(--t-green) !important;
+  border-color: var(--t-green) !important;
+  color: #ffffff !important;
+}
+
+.orangetext.buttonwhite,
+a.orangetext.buttonwhite {
+  color: var(--t-orange) !important;
+  border-color: var(--t-orange) !important;
+  background: var(--t-white) !important;
+}
+
+.orangetext.buttonwhite:hover,
+.orangetext.buttonwhite.invert,
+.orangetext.invert {
+  background: var(--t-orange) !important;
+  border-color: var(--t-orange) !important;
+  color: #ffffff !important;
+}
+
+/* --- Filled color buttons --- */
+span.buttonblue, a.buttonblue {
+  background-color: var(--t-accent) !important;
+  border: 1px solid var(--t-accent) !important;
+  color: #ffffff !important;
+  border-radius: 5px !important;
+}
+
+span.buttonblue:hover, a.buttonblue:hover {
+  background-color: var(--t-accent-dark) !important;
+  border-color: var(--t-accent-dark) !important;
+  color: #ffffff !important;
+}
+
+span.buttonred, a.buttonred {
+  background-color: var(--t-red) !important;
+  border: 1px solid var(--t-red) !important;
+  color: #ffffff !important;
+  border-radius: 5px !important;
+}
+
+span.buttonred:hover, a.buttonred:hover {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+span.buttonorange, a.buttonorange {
+  background-color: var(--t-orange) !important;
+  border: 1px solid var(--t-orange) !important;
+  color: #ffffff !important;
+  border-radius: 5px !important;
+}
+
+/* --- Medium buttons (button.medium) --- */
+button.medium {
+  border-radius: 5px !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+  font-family: inherit !important;
+}
+
+button.medium.red {
+  background-color: var(--t-red) !important;
+  border: 1px solid var(--t-red) !important;
+}
+
+/* --- ltbuttonwhite --- */
+.ltbuttonwhite.bluetext,
+a.ltbuttonwhite.bluetext {
+  border: 1px solid var(--t-border) !important;
+  color: var(--t-accent) !important;
+  background-color: var(--t-hover) !important;
+}
+
+.ltbuttonwhite.bluetext:hover,
+a.ltbuttonwhite.bluetext:hover {
+  background-color: var(--t-accent) !important;
+  color: #ffffff !important;
+}
+
+/* ===== FORM CONTROLS ===== */
+input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="hidden"]):not([type="file"]),
+select,
+textarea {
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 5px !important;
+  color: var(--t-text) !important;
+  font-family: inherit !important;
+}
+
+input[type="checkbox"].bigger,
+input[type="checkbox"].larger {
+  border: 1px solid var(--t-border) !important;
+}
+
+input[type="checkbox"].larger:checked,
+input[type="checkbox"].bigger:checked {
+  background-color: var(--t-accent) !important;
+}
+
+/* Select2 */
+.select2-container .select2-selection {
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 5px !important;
+}
+
+.select2-container .select2-selection__rendered {
+  color: var(--t-text) !important;
+  font-family: inherit !important;
+}
+
+.select2-container .select2-selection__arrow b {
+  border-color: var(--t-muted) transparent transparent transparent !important;
+}
+
+.select2-dropdown {
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 5px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+}
+
+.select2-results__option {
+  color: var(--t-text) !important;
+  font-family: inherit !important;
+}
+
+.select2-results__option--highlighted {
+  background: var(--t-hover) !important;
+  color: var(--t-accent) !important;
+}
+
+/* ===== TEXT COLOR UTILITIES ===== */
+.redtext, p.error { color: var(--t-red) !important; }
+.greentext { color: var(--t-green) !important; }
+.bluetext { color: var(--t-accent) !important; }
+.orangetext { color: var(--t-orange) !important; }
+.graytext, .greytext { color: var(--t-muted) !important; }
+.lightgraytext, .lightgreytext { color: var(--t-muted) !important; }
+.whitetext { color: var(--t-white) !important; }
+
+/* Links default (tabroom uses dark-red for links) */
+a { color: var(--t-accent) !important; }
+
+/* ===== DRAGGABLE ELEMENTS ===== */
+.draggable {
+  background: var(--t-bg) !important;
+  border: 1px solid var(--t-border) !important;
+  border-image: none !important;
+}
+
+/* ===== SIDEBAR SHADE TOGGLES ===== */
+.openshade, .closedshade {
+  color: var(--t-muted) !important;
+}
+
+.openshade:hover, .closedshade:hover {
+  background-color: var(--t-bg) !important;
+  color: var(--t-text) !important;
+  border: 1px solid var(--t-border) !important;
+}
+
+/* ===== FOOTER ===== */
+#footer {
+  background: var(--t-bg) !important;
+}
+
+#footer a {
+  color: var(--t-accent) !important;
+}
+
+#footer a:hover {
+  background: var(--t-hover) !important;
+  color: var(--t-accent-dark) !important;
+}
+
+/* ===== ALERTIFY / NOTIFICATIONS ===== */
+.alertify-notifier .ajs-message {
+  border-radius: 6px !important;
+  font-family: inherit !important;
+}
+
+/* ===== COMPACT MODE ===== */
+body.tr-compact table th,
+body.tr-compact table td {
+  padding: 5px 10px !important;
+}
+
+/* ===== MOBILE ===== */
 @media (max-width: 900px) {
   #header {
-    padding: 0 16px !important;
-  }
-
-  #headerarch {
-    min-height: 72px;
-  }
-
-  #logo {
-    width: 210px !important;
-  }
-
-  #logo a img {
-    max-width: 190px !important;
-  }
-
-  #nav {
-    justify-content: stretch;
-    gap: 3px;
-  }
-
-  #nav li {
-    flex: 1;
-  }
-
-  #nav li a.top_link span.down {
-    padding: 8px 5px !important;
-    text-align: center;
-  }
-
-  div.menu,
-  .tabad_carousel {
-    float: none !important;
-    width: 100% !important;
+    padding: 0 12px !important;
   }
 
   div.menu {
-    padding: 0 16px 16px !important;
+    float: none !important;
+    width: 100% !important;
   }
 }
