@@ -48,20 +48,20 @@ html, body {
   max-width: 1536px;
   margin: 0 auto;
   max-height: none !important;
-  min-height: 72px !important;
+  min-height: 80px !important;
   align-items: center !important;
 }
 
 #logo {
   width: auto !important;
-  min-width: 200px !important;
-  padding: 6px 0 !important;
+  min-width: 220px !important;
+  padding: 0 !important;
   flex-shrink: 0 !important;
 }
 
 #logo a img {
   display: block !important;
-  height: 60px !important;
+  height: 110px !important;
   width: auto !important;
   max-width: none !important;
   max-height: none !important;
