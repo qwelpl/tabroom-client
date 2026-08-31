@@ -1076,13 +1076,17 @@ body button.printbutton.greentext.buttonwhite:hover {
 }
 
 /* ===== TOURNHEADER ROW ALIGNMENT ===== */
-.tournheader,
+.tournheader {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  width: 100% !important;
+}
+
 .tournheader span,
 .tournheader span.half,
 div.main div.tournheader span.half {
   vertical-align: middle !important;
-  display: inline-flex !important;
-  align-items: center !important;
   padding-top: 0 !important;
 }
 
