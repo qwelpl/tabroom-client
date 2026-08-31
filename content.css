@@ -1211,6 +1211,97 @@ body table tr.tr-bye-row.even:hover td {
   background-color: #dcfce7 !important;
 }
 
+/* ===== NOTES PANEL ===== */
+.tr-notes-panel {
+  background: var(--t-white);
+  border: 1px solid var(--t-border);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.tr-notes-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: var(--t-bg);
+  border-bottom: 1px solid var(--t-border);
+}
+.tr-notes-label {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t-text);
+}
+.tr-notes-status {
+  font-size: 12px;
+  color: var(--t-accent);
+  width: 14px;
+  text-align: center;
+}
+.tr-notes-toggle {
+  font-size: 11px;
+  padding: 2px 8px !important;
+  background: transparent !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 4px !important;
+  color: var(--t-muted) !important;
+  cursor: pointer !important;
+  height: auto !important;
+  width: auto !important;
+}
+.tr-notes-area {
+  display: block;
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 12px;
+  border: none !important;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--t-text);
+  background: var(--t-white);
+  box-sizing: border-box;
+  outline: none;
+  line-height: 1.5;
+}
+
+/* ===== TOURNAMENT SUMMARY PANEL ===== */
+.tr-summary-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--t-white);
+  border: 1px solid var(--t-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+.tr-sum-label {
+  font-weight: 600;
+  color: var(--t-muted);
+  font-size: 12px;
+  margin-right: 4px;
+}
+.tr-sum-wins {
+  color: var(--t-green);
+  font-weight: 700;
+}
+.tr-sum-losses {
+  color: var(--t-red);
+  font-weight: 700;
+}
+.tr-sum-bye {
+  color: var(--t-muted);
+  font-size: 12px;
+}
+.tr-sum-pct {
+  margin-left: auto;
+  color: var(--t-muted);
+  font-size: 12px;
+}
+
 /* ===== COMPACT MODE ===== */
 body.tr-compact table th,
 body.tr-compact table td {

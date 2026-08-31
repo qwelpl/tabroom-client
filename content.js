@@ -79,3 +79,109 @@ if (document.readyState === 'loading') {
 } else {
   highlightWinningRows();
 }
+
+// ===== NOTES + OPPONENT PERFORMANCE =====
+
+function getPageCtx() {
+  const p = new URLSearchParams(location.search);
+  const path = location.pathname;
+  if (p.has('judge_person_id')) return { type: 'judge', id: p.get('judge_person_id'), label: 'Judge' };
+  if (p.has('student_id'))      return { type: 'student', id: p.get('student_id'), label: 'Competitor', tournId: p.get('tourn_id') };
+  if (p.has('entry_id'))        return { type: 'entry', id: p.get('entry_id'), label: 'Entry' };
+  return null;
+}
+
+function injectNotes(ctx) {
+  if (document.querySelector('.tr-notes-panel')) return;
+  const key = `tr_notes_${ctx.type}_${ctx.id}`;
+
+  const panel = document.createElement('div');
+  panel.className = 'tr-notes-panel';
+  panel.innerHTML = `
+    <div class="tr-notes-bar">
+      <span class="tr-notes-label">Notes</span>
+      <span class="tr-notes-status"></span>
+      <button class="tr-notes-toggle" type="button">hide</button>
+    </div>
+    <textarea class="tr-notes-area" placeholder="Notes for this ${ctx.label.toLowerCase()}…"></textarea>
+  `;
+
+  const ta = panel.querySelector('.tr-notes-area');
+  const status = panel.querySelector('.tr-notes-status');
+  const toggle = panel.querySelector('.tr-notes-toggle');
+
+  chrome.storage.local.get({ [key]: '' }, d => {
+    ta.value = d[key];
+  });
+
+  toggle.addEventListener('click', () => {
+    const hidden = ta.style.display === 'none';
+    ta.style.display = hidden ? '' : 'none';
+    toggle.textContent = hidden ? 'hide' : 'show';
+  });
+
+  let timer;
+  ta.addEventListener('input', () => {
+    status.textContent = '●';
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      chrome.storage.local.set({ [key]: ta.value }, () => {
+        status.textContent = '✓';
+        setTimeout(() => { status.textContent = ''; }, 1500);
+      });
+    }, 600);
+  });
+
+  const main = document.querySelector('div.main, div.mainfull');
+  if (main) main.insertBefore(panel, main.firstChild);
+}
+
+function injectTournamentSummary() {
+  if (!/\/user\/student\//i.test(location.pathname)) return;
+  if (document.querySelector('.tr-summary-panel')) return;
+
+  const tables = [...document.querySelectorAll('table')];
+  let totalW = 0, totalL = 0, totalBye = 0;
+
+  tables.forEach(table => {
+    const resultsIdx = [...table.querySelectorAll('tr:first-child th, tr:first-child td')]
+      .findIndex(th => /result|judge/i.test(th.textContent));
+
+    table.querySelectorAll('tr').forEach(row => {
+      const cells = row.querySelectorAll('td');
+      if (!cells.length) return;
+      const text = (resultsIdx !== -1 ? cells[resultsIdx] : row)?.textContent || '';
+      if (/\bBYE\b/i.test(row.textContent)) { totalBye++; return; }
+      totalW += (text.match(/\bW\b/g) || []).length;
+      totalL += (text.match(/\bL\b/g) || []).length;
+    });
+  });
+
+  if (totalW + totalL + totalBye === 0) return;
+
+  const panel = document.createElement('div');
+  panel.className = 'tr-summary-panel';
+  const pct = totalW + totalL > 0 ? Math.round(100 * totalW / (totalW + totalL)) : null;
+  panel.innerHTML = `
+    <span class="tr-sum-label">Tournament record</span>
+    <span class="tr-sum-wins">${totalW}W</span>
+    <span class="tr-sum-losses">${totalL}L</span>
+    ${totalBye ? `<span class="tr-sum-bye">${totalBye} BYE</span>` : ''}
+    ${pct !== null ? `<span class="tr-sum-pct">${pct}% win rate</span>` : ''}
+  `;
+
+  const main = document.querySelector('div.main, div.mainfull');
+  if (main) main.insertBefore(panel, main.firstChild);
+}
+
+function initExtras() {
+  const ctx = getPageCtx();
+  if (ctx) injectNotes(ctx);
+  injectTournamentSummary();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initExtras, { once: true });
+} else {
+  initExtras();
+}
