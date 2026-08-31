@@ -1,6 +1,6 @@
 const defaults = {
   mode: 'light',
-  accent: '#4f46e5',
+  accent: '#0d6b89',
   compact: false,
 };
 
