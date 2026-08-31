@@ -91,15 +91,23 @@ function dbNormKey(name) { return name.trim().toLowerCase().replace(/[^a-z0-9]+/
 
 let _emailKey = null;
 function getEmailKey() {
-  if (_emailKey) return _emailKey;
-  const el = document.querySelector('#mobile_email') ||
-    document.querySelector('#toprow a[href*="user/home"]');
-  const text = (el?.textContent || '').trim();
-  const m = text.match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
-  // also try scanning toprow for email pattern
-  const topText = document.querySelector('#toprow')?.textContent || '';
-  const m2 = topText.match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
-  const email = (m || m2)?.[0] || 'anon';
+  if (_emailKey && _emailKey !== 'anon') return _emailKey;
+  // Try all links to user/home.mhtml — one will have the email as text
+  const candidates = [
+    ...document.querySelectorAll('a[href*="user/home.mhtml"]'),
+    document.querySelector('#mobile_email'),
+  ].filter(Boolean);
+  let email = 'anon';
+  for (const el of candidates) {
+    const m = el.textContent.trim().match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
+    if (m) { email = m[0]; break; }
+  }
+  // fallback: scan entire toprow text
+  if (email === 'anon') {
+    const m = document.querySelector('#toprow, #headerarch')
+      ?.textContent.match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
+    if (m) email = m[0];
+  }
   _emailKey = email.toLowerCase().replace(/[^a-z0-9]/g, '_');
   return _emailKey;
 }
