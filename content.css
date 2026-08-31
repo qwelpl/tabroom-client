@@ -599,7 +599,7 @@ a.button.redtext {
   color: var(--t-red) !important;
 }
 
-/* --- FA icon-only buttons vertical alignment --- */
+/* --- FA icon-only buttons — consistent size and alignment --- */
 a.fa.buttonwhite,
 a.buttonwhite.fa,
 button.fa.buttonwhite,
@@ -608,6 +608,10 @@ button.buttonwhite.fa {
   align-items: center !important;
   justify-content: center !important;
   vertical-align: middle !important;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  font-size: 14px !important;
 }
 
 /* --- Header / icon-only buttons — keep transparent --- */
