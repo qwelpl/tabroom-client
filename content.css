@@ -808,12 +808,19 @@ a.printbutton,
 button.printbutton,
 a.printbutton.buttonred,
 a.printbutton.buttonwhite,
+button.printbutton.buttonwhite,
 a.printbutton.greentext,
+button.printbutton.greentext,
 a.printbutton.greentext.buttonwhite,
+button.printbutton.greentext.buttonwhite,
 a.printbutton.redtext,
+button.printbutton.redtext,
 a.printbutton.redtext.buttonwhite,
+button.printbutton.redtext.buttonwhite,
 a.printbutton.bluetext,
-a.printbutton.bluetext.buttonwhite {
+button.printbutton.bluetext,
+a.printbutton.bluetext.buttonwhite,
+button.printbutton.bluetext.buttonwhite {
   width: auto !important;
   height: auto !important;
   padding: 7px 10px !important;
@@ -824,10 +831,14 @@ a.printbutton.bluetext.buttonwhite {
 }
 button.notfirst:hover,
 a.printbutton:hover,
+button.printbutton:hover,
 a.printbutton.buttonred:hover,
+button.printbutton.redtext:hover,
 a.printbutton.greentext:hover,
+button.printbutton.greentext:hover,
 a.printbutton.redtext:hover,
-a.printbutton.bluetext:hover {
+a.printbutton.bluetext:hover,
+button.printbutton.bluetext:hover {
   background: var(--t-bg) !important;
   border-color: #cbd5e1 !important;
   color: var(--t-text) !important;
