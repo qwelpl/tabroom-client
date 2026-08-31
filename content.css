@@ -411,88 +411,143 @@ a:hover {
 
 /* ===== BUTTONS ===== */
 
-/* --- Header icon buttons --- */
+/* --- Global base reset --- */
+button,
+a.button,
+a.buttonwhite,
+a.buttonblue,
+a.buttonred,
+a.buttonorange,
+span.buttonwhite,
+span.buttonblue,
+span.buttonred,
+span.buttonorange,
+input[type="submit"],
+input[type="button"] {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  border-radius: 6px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease !important;
+  opacity: 1 !important;
+  letter-spacing: normal !important;
+}
+
+/* --- Bare button (small form controls) --- */
+button:not(.submit):not(.medium):not(.buttonwhite):not(.buttonblue):not(.buttonred):not(.buttonorange):not(.notfirst):not(.loginicons):not(.printbutton) {
+  width: auto !important;
+  height: auto !important;
+  padding: 4px 10px !important;
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  color: var(--t-text) !important;
+}
+
+button:not(.submit):not(.medium):not(.buttonwhite):not(.buttonblue):not(.buttonred):not(.buttonorange):not(.notfirst):not(.loginicons):not(.printbutton):hover {
+  background: var(--t-bg) !important;
+  border-color: var(--t-muted) !important;
+  color: var(--t-text) !important;
+}
+
+/* --- Header / icon-only buttons — keep transparent --- */
 #toprow button,
 #search button,
-#mobile_search button {
+#mobile_search button,
+button.loginicons {
   background: transparent !important;
   border: none !important;
-  box-shadow: none !important;
   color: var(--t-muted) !important;
   width: auto !important;
   height: auto !important;
+  padding: 4px 8px !important;
+  border-radius: 4px !important;
 }
 
-/* --- Primary submit/action buttons --- */
+/* --- Primary (blue) --- */
+input[type="submit"],
+input[type="button"],
 .row a.submit,
 a.submit,
 button.submit,
-a.buttonwhite.submit,
-input[type="submit"],
-input[type="button"] {
+button.medium {
+  padding: 7px 16px !important;
   background: var(--t-accent) !important;
   border: 1px solid var(--t-accent) !important;
-  border-radius: 5px !important;
   color: #ffffff !important;
-  font-weight: 500 !important;
-  box-shadow: none !important;
-  font-family: inherit !important;
-  cursor: pointer !important;
-  opacity: 1 !important;
 }
 
+input[type="submit"]:hover,
+input[type="button"]:hover,
 .row a.submit:hover,
 a.submit:hover,
 button.submit:hover,
-input[type="submit"]:hover,
-input[type="button"]:hover {
+button.medium:hover {
   background: var(--t-accent-dark) !important;
   border-color: var(--t-accent-dark) !important;
-  opacity: 1 !important;
+  color: #ffffff !important;
 }
 
-/* Red variant submit */
+/* Red submit variants */
 input[type="submit"].red,
 input[type="submit"].redtext,
 .row a.submit.redtext,
 a.submit.redtext,
-button.submit.redtext {
+button.submit.redtext,
+button.medium.red {
   background: var(--t-red) !important;
   border-color: var(--t-red) !important;
+  color: #ffffff !important;
+}
+
+input[type="submit"].red:hover,
+input[type="submit"].redtext:hover,
+a.submit.redtext:hover,
+button.submit.redtext:hover {
+  background: #b91c1c !important;
+  border-color: #b91c1c !important;
 }
 
 /* Disabled */
-input[type="submit"]:disabled {
-  background: var(--t-muted) !important;
-  border-color: var(--t-muted) !important;
+input[type="submit"]:disabled,
+input[type="button"]:disabled {
+  background: var(--t-border) !important;
+  border-color: var(--t-border) !important;
+  color: var(--t-muted) !important;
   cursor: not-allowed !important;
 }
 
-/* --- Outline/ghost buttons (.buttonwhite) --- */
+/* --- Ghost / outline (.buttonwhite) --- */
 .buttonwhite,
 a.buttonwhite,
 button.buttonwhite,
 span.buttonwhite {
+  padding: 6px 14px !important;
   background: var(--t-white) !important;
   border: 1px solid var(--t-border) !important;
-  border-radius: 5px !important;
   color: var(--t-text) !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
 }
 
 .buttonwhite:hover,
 a.buttonwhite:hover,
-button.buttonwhite:hover {
+button.buttonwhite:hover,
+span.buttonwhite:hover {
   background: var(--t-bg) !important;
+  border-color: #cbd5e1 !important;
   color: var(--t-text) !important;
-  opacity: 1 !important;
 }
 
-/* Inverted = filled (used as CTA) */
+/* Invert = filled accent */
 .buttonwhite.invert,
 a.buttonwhite.invert,
-button.buttonwhite.invert {
+button.buttonwhite.invert,
+span.buttonwhite.invert {
   background: var(--t-accent) !important;
   border-color: var(--t-accent) !important;
   color: #ffffff !important;
@@ -502,131 +557,137 @@ button.buttonwhite.invert {
 a.buttonwhite.invert:hover {
   background: var(--t-accent-dark) !important;
   border-color: var(--t-accent-dark) !important;
-  opacity: 1 !important;
 }
 
-/* Color-specific buttonwhite variants */
-.bluetext.buttonwhite,
-a.bluetext.buttonwhite {
+/* Color-keyed outline variants */
+.bluetext.buttonwhite, a.bluetext.buttonwhite, span.bluetext.buttonwhite {
   color: var(--t-accent) !important;
-  border-color: var(--t-accent) !important;
+  border-color: #bfdbfe !important;
+  background: #eff6ff !important;
 }
-
-.bluetext.buttonwhite:hover,
-a.bluetext.buttonwhite:hover,
-.bluetext.buttonwhite.invert,
-.bluetext.invert {
+.bluetext.buttonwhite:hover, a.bluetext.buttonwhite:hover,
+.bluetext.buttonwhite.invert, .bluetext.invert {
   background: var(--t-accent) !important;
   border-color: var(--t-accent) !important;
   color: #ffffff !important;
 }
 
-.redtext.buttonwhite,
-a.redtext.buttonwhite {
+.redtext.buttonwhite, a.redtext.buttonwhite, span.redtext.buttonwhite {
   color: var(--t-red) !important;
-  border-color: var(--t-red) !important;
-  background: var(--t-white) !important;
+  border-color: #fecaca !important;
+  background: #fef2f2 !important;
 }
-
-.redtext.buttonwhite:hover,
-a.redtext.buttonwhite:hover,
-.redtext.buttonwhite.invert,
-.redtext.invert {
+.redtext.buttonwhite:hover, a.redtext.buttonwhite:hover,
+.redtext.buttonwhite.invert, .redtext.invert {
   background: var(--t-red) !important;
   border-color: var(--t-red) !important;
   color: #ffffff !important;
 }
 
-.greentext.buttonwhite,
-a.greentext.buttonwhite {
+.greentext.buttonwhite, a.greentext.buttonwhite, span.greentext.buttonwhite {
   color: var(--t-green) !important;
-  border-color: var(--t-green) !important;
-  background: var(--t-white) !important;
+  border-color: #bbf7d0 !important;
+  background: #f0fdf4 !important;
 }
-
-.greentext.buttonwhite:hover,
-a.greentext.buttonwhite:hover,
-.greentext.buttonwhite.invert,
-.greentext.invert {
+.greentext.buttonwhite:hover, a.greentext.buttonwhite:hover,
+.greentext.buttonwhite.invert, .greentext.invert {
   background: var(--t-green) !important;
   border-color: var(--t-green) !important;
   color: #ffffff !important;
 }
 
-.orangetext.buttonwhite,
-a.orangetext.buttonwhite {
+.orangetext.buttonwhite, a.orangetext.buttonwhite, span.orangetext.buttonwhite {
   color: var(--t-orange) !important;
-  border-color: var(--t-orange) !important;
-  background: var(--t-white) !important;
+  border-color: #fed7aa !important;
+  background: #fff7ed !important;
 }
-
-.orangetext.buttonwhite:hover,
-.orangetext.buttonwhite.invert,
-.orangetext.invert {
+.orangetext.buttonwhite:hover, a.orangetext.buttonwhite:hover,
+.orangetext.buttonwhite.invert, .orangetext.invert {
   background: var(--t-orange) !important;
   border-color: var(--t-orange) !important;
   color: #ffffff !important;
 }
 
-/* --- Filled color buttons --- */
-span.buttonblue, a.buttonblue {
-  background-color: var(--t-accent) !important;
-  border: 1px solid var(--t-accent) !important;
-  color: #ffffff !important;
-  border-radius: 5px !important;
+.graytext.buttonwhite, a.graytext.buttonwhite,
+.greytext.buttonwhite, a.greytext.buttonwhite {
+  color: var(--t-muted) !important;
+  border-color: var(--t-border) !important;
+  background: var(--t-white) !important;
+}
+.graytext.buttonwhite:hover, .greytext.buttonwhite:hover {
+  background: var(--t-bg) !important;
 }
 
+/* --- Filled color buttons --- */
+span.buttonblue, a.buttonblue {
+  padding: 6px 14px !important;
+  background: var(--t-accent) !important;
+  border: 1px solid var(--t-accent) !important;
+  color: #ffffff !important;
+}
 span.buttonblue:hover, a.buttonblue:hover {
-  background-color: var(--t-accent-dark) !important;
+  background: var(--t-accent-dark) !important;
   border-color: var(--t-accent-dark) !important;
   color: #ffffff !important;
 }
 
 span.buttonred, a.buttonred {
-  background-color: var(--t-red) !important;
+  padding: 6px 14px !important;
+  background: var(--t-red) !important;
   border: 1px solid var(--t-red) !important;
   color: #ffffff !important;
-  border-radius: 5px !important;
 }
-
 span.buttonred:hover, a.buttonred:hover {
-  background-color: #b91c1c !important;
+  background: #b91c1c !important;
   border-color: #b91c1c !important;
   color: #ffffff !important;
 }
 
 span.buttonorange, a.buttonorange {
-  background-color: var(--t-orange) !important;
+  padding: 6px 14px !important;
+  background: var(--t-orange) !important;
   border: 1px solid var(--t-orange) !important;
   color: #ffffff !important;
-  border-radius: 5px !important;
 }
-
-/* --- Medium buttons (button.medium) --- */
-button.medium {
-  border-radius: 5px !important;
-  box-shadow: none !important;
-  opacity: 1 !important;
-  font-family: inherit !important;
-}
-
-button.medium.red {
-  background-color: var(--t-red) !important;
-  border: 1px solid var(--t-red) !important;
+span.buttonorange:hover, a.buttonorange:hover {
+  background: #c2410c !important;
+  border-color: #c2410c !important;
+  color: #ffffff !important;
 }
 
 /* --- ltbuttonwhite --- */
-.ltbuttonwhite.bluetext,
-a.ltbuttonwhite.bluetext {
+.ltbuttonwhite, a.ltbuttonwhite {
+  padding: 6px 12px !important;
+  background: var(--t-bg) !important;
   border: 1px solid var(--t-border) !important;
+  color: var(--t-text) !important;
+}
+.ltbuttonwhite.bluetext, a.ltbuttonwhite.bluetext {
   color: var(--t-accent) !important;
-  background-color: var(--t-hover) !important;
+  background: var(--t-hover) !important;
+  border-color: #bfdbfe !important;
+}
+.ltbuttonwhite.bluetext:hover, a.ltbuttonwhite.bluetext:hover {
+  background: var(--t-accent) !important;
+  border-color: var(--t-accent) !important;
+  color: #ffffff !important;
 }
 
-.ltbuttonwhite.bluetext:hover,
-a.ltbuttonwhite.bluetext:hover {
-  background-color: var(--t-accent) !important;
-  color: #ffffff !important;
+/* --- Print / export icon buttons (.notfirst, .printbutton) --- */
+button.notfirst,
+a.printbutton,
+button.printbutton {
+  width: auto !important;
+  height: auto !important;
+  padding: 5px 8px !important;
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  border-radius: 6px !important;
+}
+button.notfirst:hover,
+a.printbutton:hover {
+  background: var(--t-bg) !important;
+  border-color: var(--t-muted) !important;
 }
 
 /* ===== FORM CONTROLS ===== */
