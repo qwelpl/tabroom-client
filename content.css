@@ -541,6 +541,50 @@ button:not(.submit):not(.medium):not(.buttonwhite):not(.buttonblue):not(.buttonr
   color: var(--t-text) !important;
 }
 
+/* --- Tab / medium buttons (tournament nav: Invite, Entries, Pairings…) --- */
+button.medium,
+a.button {
+  background: var(--t-white) !important;
+  border: 1px solid var(--t-border) !important;
+  color: var(--t-text) !important;
+  border-radius: 6px !important;
+  padding: 6px 14px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+  opacity: 1 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+button.medium:hover,
+a.button:hover {
+  background: var(--t-bg) !important;
+  border-color: #cbd5e1 !important;
+  color: var(--t-text) !important;
+  opacity: 1 !important;
+}
+button.medium.invert,
+a.button.invert,
+button.medium.bluetext,
+a.button.bluetext {
+  background: var(--t-accent) !important;
+  border-color: var(--t-accent) !important;
+  color: #ffffff !important;
+}
+button.medium.invert:hover,
+a.button.invert:hover {
+  background: var(--t-accent-dark) !important;
+  border-color: var(--t-accent-dark) !important;
+}
+button.medium.red,
+a.button.redtext {
+  background: var(--t-red-bg) !important;
+  border-color: #fecaca !important;
+  color: var(--t-red) !important;
+}
+
 /* --- Header / icon-only buttons — keep transparent --- */
 #toprow button,
 #search button,
