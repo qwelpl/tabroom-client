@@ -1134,7 +1134,7 @@ ul#tabnav li a.redtext {
   color: var(--t-red) !important;
 }
 
-/* ===== WIN ROW HIGHLIGHT ===== */
+/* ===== WIN/LOSS/BYE ROW HIGHLIGHT ===== */
 body table tr.tr-win-row td,
 body table tr.tr-win-row.odd td,
 body table tr.tr-win-row.even td,
@@ -1145,6 +1145,32 @@ body table tr.tr-win-row.evenrow td {
 body table tr.tr-win-row:hover td,
 body table tr.tr-win-row.odd:hover td,
 body table tr.tr-win-row.even:hover td {
+  background-color: #dcfce7 !important;
+}
+
+body table tr.tr-loss-row td,
+body table tr.tr-loss-row.odd td,
+body table tr.tr-loss-row.even td,
+body table tr.tr-loss-row.oddrow td,
+body table tr.tr-loss-row.evenrow td {
+  background-color: #fff1f2 !important;
+}
+body table tr.tr-loss-row:hover td,
+body table tr.tr-loss-row.odd:hover td,
+body table tr.tr-loss-row.even:hover td {
+  background-color: #ffe4e6 !important;
+}
+
+body table tr.tr-bye-row td,
+body table tr.tr-bye-row.odd td,
+body table tr.tr-bye-row.even td,
+body table tr.tr-bye-row.oddrow td,
+body table tr.tr-bye-row.evenrow td {
+  background-color: #f0fdf4 !important;
+}
+body table tr.tr-bye-row:hover td,
+body table tr.tr-bye-row.odd:hover td,
+body table tr.tr-bye-row.even:hover td {
   background-color: #dcfce7 !important;
 }
 

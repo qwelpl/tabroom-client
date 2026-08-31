@@ -63,8 +63,13 @@ function highlightWinningRows() {
         l = (text.match(/\bL\b/g) || []).length;
       }
 
-      if (w > 0 && w > l) row.classList.add('tr-win-row');
-      else row.classList.remove('tr-win-row');
+      const text = row.textContent;
+      const isBye = /\bBYE\b/i.test(text);
+
+      row.classList.remove('tr-win-row', 'tr-loss-row', 'tr-bye-row');
+      if (isBye) row.classList.add('tr-bye-row');
+      else if (w > 0 && w > l) row.classList.add('tr-win-row');
+      else if (l > 0 && l > w) row.classList.add('tr-loss-row');
     });
   });
 }
