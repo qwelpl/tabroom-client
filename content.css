@@ -1045,6 +1045,17 @@ body button.printbutton.greentext.buttonwhite:hover {
   color: var(--t-text) !important;
 }
 
+/* ===== BUTTON AREAS ===== */
+[id$="_buttonarea"],
+#tournlist_buttonarea {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 4px !important;
+  width: 100% !important;
+  margin-bottom: 4px !important;
+}
+
 /* ===== TABNAV ===== */
 ul#tabnav {
   border-bottom: 2px solid var(--t-border) !important;
