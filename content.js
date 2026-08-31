@@ -205,14 +205,14 @@ function renderDbList(panel, type, filter) {
       return;
     }
     list.innerHTML = entries.map(e => `
-      <div class="tr-db-row" data-key="${dbNormKey(e.name)}" data-type="${type}">
+      <div class="tr-db-row" data-key="${dbNormKey(e.name)}" data-name="${e.name}" data-type="${type}">
         <div class="tr-db-row-name">${e.name}</div>
         <div class="tr-db-row-preview">${(e.notes || '').slice(0, 80) || '—'}</div>
       </div>
     `).join('');
     list.querySelectorAll('.tr-db-row').forEach(row => {
       row.addEventListener('click', () =>
-        openDbEditor(panel, row.dataset.type, row.dataset.key));
+        openDbEditor(panel, row.dataset.type, row.dataset.key, row.dataset.name));
     });
   });
 }
@@ -220,6 +220,10 @@ function renderDbList(panel, type, filter) {
 function openDbEditor(panel, type, key, name) {
   dbLoad(type, db => {
     const entry = db[key] || { name: name || key, notes: '', updated: 0 };
+    if (entry.name === key && name) {
+      entry.name = name;
+      dbSetEntry(type, key, { ...entry }, () => {});
+    }
     panel.querySelector('.tr-db-list-view').style.display = 'none';
     const ed = panel.querySelector('.tr-db-editor');
     ed.style.display = '';
