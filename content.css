@@ -1217,7 +1217,7 @@ body table tr.tr-bye-row.even:hover td {
   bottom: 72px;
   right: 20px;
   width: 340px;
-  max-height: 480px;
+  height: 480px;
   background: var(--t-white);
   border: 1px solid var(--t-border);
   border-radius: 12px;
