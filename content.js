@@ -57,7 +57,7 @@ function highlightWinningRows() {
         w = parseFloat(cells[wIdx]?.textContent.trim()) || 0;
         l = parseFloat(cells[lIdx]?.textContent.trim()) || 0;
       } else {
-        const target = resultsIdx !== -1 ? cells[resultsIdx] : row;
+        const target = (resultsIdx !== -1 ? cells[resultsIdx] : null) ?? row;
         const text = target.textContent;
         w = (text.match(/\bW\b/g) || []).length;
         l = (text.match(/\bL\b/g) || []).length;
