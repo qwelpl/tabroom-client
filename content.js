@@ -81,49 +81,54 @@ if (document.readyState === 'loading') {
 }
 
 // ===== NOTES DATABASE =====
-// Firebase Realtime Database + Anonymous Auth (REST, no SDK)
+// Firebase Realtime Database + Email/Password Auth (REST, no SDK)
+// Password is derived from the Tabroom email — same email on any device
+// produces the same Firebase account, enabling cross-device sync.
+//
 // Required Firebase setup:
-//   1. Authentication → Sign-in method → Anonymous → Enable
-//   2. Realtime Database → Rules → { ".read": "auth != null", ".write": "auth != null" }
-//   3. Replace FB_API_KEY below with your Web API Key (Project Settings → General)
-// Data path: /{emailKey}/competitors/{noteKey}, /{emailKey}/judges/{noteKey}
+//   1. Authentication → Sign-in method → Email/Password → Enable
+//   2. Realtime Database → Rules:
+//      { "rules": { "$uid": { ".read": "auth != null && auth.uid === $uid",
+//                             ".write": "auth != null && auth.uid === $uid" } } }
+//   3. Replace FB_API_KEY with your Web API Key (Project Settings → General)
+// Data path: /{uid}/competitors/{noteKey}, /{uid}/judges/{noteKey}
 
 const FB_DB = 'https://tabroom-client-default-rtdb.firebaseio.com';
 const FB_API_KEY = 'REPLACE_WITH_YOUR_FIREBASE_WEB_API_KEY';
+const FB_APP_VER = 'tr-notes-v1'; // bump to force new accounts if needed
 
 function dbNormKey(name) { return name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_'); }
 
-let _emailKey = null;
-function getEmailKey() {
-  if (_emailKey && _emailKey !== 'anon') return _emailKey;
+let _detectedEmail = null;
+function detectEmail() {
+  if (_detectedEmail) return _detectedEmail;
   const candidates = [
     ...document.querySelectorAll('a[href*="user/home.mhtml"]'),
     document.querySelector('#mobile_email'),
   ].filter(Boolean);
-  let email = 'anon';
   for (const el of candidates) {
     const m = el.textContent.trim().match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
-    if (m) { email = m[0]; break; }
+    if (m) { _detectedEmail = m[0].toLowerCase(); return _detectedEmail; }
   }
-  if (email === 'anon') {
-    const m = document.querySelector('#toprow, #headerarch')
-      ?.textContent.match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
-    if (m) email = m[0];
-  }
-  _emailKey = email.toLowerCase().replace(/[^a-z0-9]/g, '_');
-  return _emailKey;
+  const m = document.querySelector('#toprow, #headerarch')
+    ?.textContent.match(/[\w.+\-]+@[\w.\-]+\.[a-z]{2,}/i);
+  if (m) { _detectedEmail = m[0].toLowerCase(); return _detectedEmail; }
+  return null;
 }
 
-// Auth token cache (in-memory + chrome.storage.local for persistence)
-let _token = null;
-let _tokenExpiry = 0;
+function derivePassword(email) {
+  // Deterministic per-email password. Same email → same Firebase account on any device.
+  return btoa(`${FB_APP_VER}::${email}`).replace(/[^a-zA-Z0-9]/g, '').substring(0, 24);
+}
 
-async function getToken() {
-  if (_token && Date.now() < _tokenExpiry - 60_000) return _token;
+let _auth = null; // { token, uid, email, expiry, refresh }
 
+async function getAuth() {
+  if (_auth && Date.now() < _auth.expiry - 60_000) return _auth;
+
+  // Try refreshing stored token
   const { tr_fb_auth: stored } = await chrome.storage.local.get('tr_fb_auth');
-
-  if (stored?.refresh) {
+  if (stored?.refresh && stored?.uid) {
     try {
       const r = await fetch(
         `https://securetoken.googleapis.com/v1/token?key=${FB_API_KEY}`,
@@ -135,35 +140,62 @@ async function getToken() {
       );
       if (r.ok) {
         const d = await r.json();
-        _token = d.id_token;
-        _tokenExpiry = Date.now() + Number(d.expires_in) * 1000;
-        await chrome.storage.local.set({ tr_fb_auth: { token: _token, refresh: d.refresh_token, expiry: _tokenExpiry } });
-        return _token;
+        _auth = { token: d.id_token, uid: stored.uid, email: stored.email,
+                  expiry: Date.now() + Number(d.expires_in) * 1000, refresh: d.refresh_token };
+        await chrome.storage.local.set({ tr_fb_auth: { ..._auth } });
+        return _auth;
       }
     } catch (_) {}
   }
 
-  // Anonymous sign-in
-  const r = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`,
+  const email = detectEmail();
+  if (!email) throw new Error('Not signed in to Tabroom — cannot sync notes');
+
+  const password = derivePassword(email);
+
+  // Try sign-in
+  let r = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ returnSecureToken: true })
+      body: JSON.stringify({ email, password, returnSecureToken: true })
     }
   );
+
+  // Account doesn't exist yet — create it
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({}));
+    if (err?.error?.message === 'EMAIL_NOT_FOUND' || err?.error?.message === 'INVALID_LOGIN_CREDENTIALS') {
+      r = await fetch(
+        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password, returnSecureToken: true })
+        }
+      );
+    }
+  }
+
   const d = await r.json();
   if (!r.ok || d.error) throw new Error(d?.error?.message || `Auth HTTP ${r.status}`);
-  _token = d.idToken;
-  _tokenExpiry = Date.now() + Number(d.expiresIn) * 1000;
-  await chrome.storage.local.set({ tr_fb_auth: { token: _token, refresh: d.refreshToken, expiry: _tokenExpiry } });
-  return _token;
+
+  _auth = {
+    token: d.idToken,
+    uid: d.localId,
+    email,
+    expiry: Date.now() + Number(d.expiresIn) * 1000,
+    refresh: d.refreshToken
+  };
+  await chrome.storage.local.set({ tr_fb_auth: { ..._auth } });
+  return _auth;
 }
 
 async function fbUrl(type, key) {
-  const token = await getToken();
-  const base = `${FB_DB}/${getEmailKey()}/${type}`;
-  return (key ? `${base}/${key}.json` : `${base}.json`) + `?auth=${token}`;
+  const auth = await getAuth();
+  const base = `${FB_DB}/${auth.uid}/${type}`;
+  return (key ? `${base}/${key}.json` : `${base}.json`) + `?auth=${auth.token}`;
 }
 
 function migrateOldNotes() {
@@ -359,7 +391,10 @@ function getOrCreateDbPanel() {
       <textarea class="tr-db-ed-area" placeholder="Your notes…"></textarea>
     </div>
   `;
-  panel.querySelector('.tr-db-email-key').textContent = getEmailKey();
+  const emailKeyEl = panel.querySelector('.tr-db-email-key');
+  emailKeyEl.textContent = detectEmail() || 'detecting…';
+  getAuth().then(auth => { emailKeyEl.textContent = auth.email; })
+           .catch(err => { emailKeyEl.textContent = `Error: ${err.message}`; });
 
   let currentType = 'competitors';
 
