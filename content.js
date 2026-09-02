@@ -198,6 +198,24 @@ async function fbUrl(type, key) {
   return (key ? `${base}/${key}.json` : `${base}.json`) + `?auth=${auth.token}`;
 }
 
+function loadPrefs(cb) {
+  getAuth()
+    .then(auth => fetch(`${FB_DB}/${auth.uid}/prefs.json?auth=${auth.token}`))
+    .then(r => r.json().catch(() => null))
+    .then(data => cb(data && typeof data === 'object' ? data : null))
+    .catch(() => cb(null));
+}
+
+function savePrefs(prefs) {
+  getAuth()
+    .then(auth => fetch(`${FB_DB}/${auth.uid}/prefs.json?auth=${auth.token}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(prefs)
+    }))
+    .catch(() => {});
+}
+
 function migrateOldNotes() {
   chrome.storage.sync.get(null, all => {
     const migrants = { competitors: {}, judges: {} };
@@ -704,7 +722,7 @@ function getOrCreateDbPanel() {
   }
 
   function saveState() {
-    chrome.storage.sync.set({ tr_panel_state: { mode: _panelMode, type: currentType, groupCode: _panelGroupCode } });
+    savePrefs({ mode: _panelMode, type: currentType, groupCode: _panelGroupCode || null });
   }
 
   // Mode toggle
@@ -776,16 +794,16 @@ function getOrCreateDbPanel() {
     document.querySelector('.tr-db-fab')?.style.removeProperty('display');
   });
 
-  chrome.storage.sync.get('tr_panel_state', ({ tr_panel_state }) => {
-    if (tr_panel_state) {
-      if (tr_panel_state.groupCode) _panelGroupCode = tr_panel_state.groupCode;
-      if (tr_panel_state.mode) {
-        _panelMode = tr_panel_state.mode;
+  loadPrefs(prefs => {
+    if (prefs) {
+      if (prefs.groupCode) _panelGroupCode = prefs.groupCode;
+      if (prefs.mode) {
+        _panelMode = prefs.mode;
         panel.querySelectorAll('.tr-db-mode').forEach(b => b.classList.toggle('active', b.dataset.mode === _panelMode));
         updateNoteButtons();
       }
-      if (tr_panel_state.type) {
-        currentType = tr_panel_state.type;
+      if (prefs.type) {
+        currentType = prefs.type;
         panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.toggle('active', t.dataset.type === currentType));
       }
     }
