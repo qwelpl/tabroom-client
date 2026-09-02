@@ -1290,6 +1290,11 @@ body table tr.tr-bye-row.even:hover td {
   border-color: var(--t-text) !important;
   color: var(--t-white) !important;
 }
+.tr-db-mode[data-mode="group"].active {
+  background: var(--t-accent) !important;
+  border-color: var(--t-accent) !important;
+  color: #fff !important;
+}
 .tr-db-group-bar {
   padding: 8px 12px;
   border-bottom: 1px solid var(--t-border);
