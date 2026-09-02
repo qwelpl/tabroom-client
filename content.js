@@ -804,10 +804,7 @@ function injectDbFab() {
 }
 
 function updateNoteButtonLabel(btn) {
-  const type = btn.dataset.noteType || 'competitors';
-  const typeLabel = type === 'judges' ? 'J' : 'C';
-  const modeLabel = _panelMode === 'group' ? 'G' : 'M';
-  btn.textContent = `${modeLabel}·${typeLabel}`;
+  btn.textContent = '+';
   btn.classList.toggle('tr-opp-note-btn--group', _panelMode === 'group');
 }
 
