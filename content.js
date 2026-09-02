@@ -375,40 +375,56 @@ function renderGroupList(panel, type, filter, code) {
   list.innerHTML = `<div class="tr-db-empty">Loading…</div>`;
   Promise.all([getAuth(), new Promise(res => groupLoadNotes(code, type, (db, err) => res([db, err])))])
     .then(([auth, [db, err]]) => {
-      if (err) {
-        list.innerHTML = `<div class="tr-db-error">Group error: ${err}</div>`;
-        return;
-      }
-      const rows = [];
+      if (err) { list.innerHTML = `<div class="tr-db-error">Group error: ${err}</div>`; return; }
+      const teams = [];
       for (const [noteKey, members] of Object.entries(db)) {
         if (!members || typeof members !== 'object') continue;
-        for (const [uid, entry] of Object.entries(members)) {
-          if (!entry?.name) continue;
-          if (filter && !entry.name.toLowerCase().includes(filter.toLowerCase())) continue;
-          rows.push({ noteKey, uid, isMine: uid === auth.uid, ...entry });
-        }
+        const entries = Object.entries(members)
+          .filter(([, e]) => e?.name)
+          .map(([uid, e]) => ({ uid, isMine: uid === auth.uid, ...e }));
+        if (!entries.length) continue;
+        const displayName = entries[0].name;
+        if (filter && !displayName.toLowerCase().includes(filter.toLowerCase())) continue;
+        teams.push({ noteKey, displayName, entries });
       }
-      rows.sort((a, b) => a.name.localeCompare(b.name) || (b.updated || 0) - (a.updated || 0));
-      if (!rows.length) {
-        list.innerHTML = `<div class="tr-db-empty">No group ${type} notes yet.</div>`;
-        return;
-      }
-      list.innerHTML = rows.map(row => `
-        <div class="tr-db-row" data-key="${row.noteKey}" data-uid="${row.uid}" data-type="${type}" data-mine="${row.isMine}">
-          <div class="tr-db-row-name">${row.name}
-            <span class="tr-db-row-author">${row.isMine ? 'you' : (row.authorEmail || row.uid)}</span>
+      teams.sort((a, b) => a.displayName.localeCompare(b.displayName));
+      if (!teams.length) { list.innerHTML = `<div class="tr-db-empty">No group ${type} notes yet.</div>`; return; }
+
+      function renderTeams() {
+        list.innerHTML = teams.map(t => `
+          <div class="tr-db-row tr-db-team-row" data-key="${t.noteKey}">
+            <div class="tr-db-row-name">${t.displayName}</div>
+            <div class="tr-db-row-preview">${t.entries.length} note${t.entries.length === 1 ? '' : 's'}</div>
           </div>
-          <div class="tr-db-row-preview">${(row.notes || '').slice(0, 80) || '—'}</div>
-        </div>
-      `).join('');
-      list.querySelectorAll('.tr-db-row').forEach(row => {
-        row.addEventListener('click', () =>
-          openGroupEditor(panel, type, row.dataset.key, row.dataset.uid, code, row.dataset.mine === 'true'));
-      });
+        `).join('');
+        list.querySelectorAll('.tr-db-team-row').forEach(row => {
+          row.addEventListener('click', () => {
+            const team = teams.find(t => t.noteKey === row.dataset.key);
+            if (team) renderMembers(team);
+          });
+        });
+      }
+
+      function renderMembers(team) {
+        list.innerHTML = `
+          <div class="tr-db-row tr-db-back-row">← Back</div>
+          ${team.entries.map(e => `
+            <div class="tr-db-row" data-key="${team.noteKey}" data-uid="${e.uid}" data-mine="${e.isMine}">
+              <div class="tr-db-row-name">${e.isMine ? 'You' : (e.authorEmail || e.uid)}</div>
+              <div class="tr-db-row-preview">${(e.notes || '').slice(0, 80) || '—'}</div>
+            </div>
+          `).join('')}
+        `;
+        list.querySelector('.tr-db-back-row').addEventListener('click', renderTeams);
+        list.querySelectorAll('.tr-db-row:not(.tr-db-back-row)').forEach(row => {
+          row.addEventListener('click', () =>
+            openGroupEditor(panel, type, row.dataset.key, row.dataset.uid, code, row.dataset.mine === 'true', team.displayName));
+        });
+      }
+
+      renderTeams();
     })
-    .catch(err => {
-      list.innerHTML = `<div class="tr-db-error">Auth error: ${err.message}</div>`;
-    });
+    .catch(err => { list.innerHTML = `<div class="tr-db-error">Auth error: ${err.message}</div>`; });
 }
 
 function openGroupEditor(panel, type, key, uid, code, editable, name) {

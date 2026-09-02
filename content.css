@@ -1381,6 +1381,15 @@ body table tr.tr-bye-row.even:hover td {
 .tr-db-row:hover {
   background: var(--t-hover);
 }
+.tr-db-back-row {
+  font-size: 12px;
+  color: var(--t-accent);
+  font-weight: 600;
+}
+.tr-db-team-row .tr-db-row-preview {
+  color: var(--t-accent);
+  font-weight: 500;
+}
 .tr-db-row-name {
   font-size: 13px;
   font-weight: 600;
