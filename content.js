@@ -306,6 +306,7 @@ function dbDeleteEntry(type, key, cb) {
 let _panelMode = 'personal';
 let _panelGroupCode = null;
 let _panelType = 'competitors';
+let _prefsReady = null;
 
 async function groupFbUrl(...segments) {
   const auth = await getAuth();
@@ -795,33 +796,39 @@ function getOrCreateDbPanel() {
     document.querySelector('.tr-db-fab')?.style.removeProperty('display');
   });
 
-  loadPrefs(prefs => {
-    if (prefs) {
-      if (prefs.groupCode) _panelGroupCode = prefs.groupCode;
-      if (prefs.mode) {
-        _panelMode = prefs.mode;
-        panel.querySelectorAll('.tr-db-mode').forEach(b => b.classList.toggle('active', b.dataset.mode === _panelMode));
-        updateNoteButtons();
+  panel._rerender = rerender;
+
+  _prefsReady = new Promise(resolve => {
+    loadPrefs(prefs => {
+      if (prefs) {
+        if (prefs.groupCode) _panelGroupCode = prefs.groupCode;
+        if (prefs.mode) {
+          _panelMode = prefs.mode;
+          panel.querySelectorAll('.tr-db-mode').forEach(b => b.classList.toggle('active', b.dataset.mode === _panelMode));
+          updateNoteButtons();
+        }
+        if (prefs.type) {
+          currentType = prefs.type;
+          _panelType = prefs.type;
+          panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.toggle('active', t.dataset.type === currentType));
+        }
       }
-      if (prefs.type) {
-        currentType = prefs.type;
-        _panelType = prefs.type;
-        panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.toggle('active', t.dataset.type === currentType));
-      }
-    }
-    updateGroupBar();
-    if (prefs?.lastKey) {
-      if (_panelMode === 'group' && _panelGroupCode && prefs.lastUid) {
-        getAuth().then(auth => openGroupEditor(panel, currentType, prefs.lastKey, prefs.lastUid, _panelGroupCode, prefs.lastUid === auth.uid, prefs.lastName));
-      } else if (_panelMode !== 'group') {
-        openDbEditor(panel, currentType, prefs.lastKey, prefs.lastName);
+      updateGroupBar();
+      resolve();
+      if (prefs?.lastKey) {
+        if (_panelMode === 'group' && _panelGroupCode && prefs.lastUid) {
+          getAuth().then(auth => openGroupEditor(panel, currentType, prefs.lastKey, prefs.lastUid, _panelGroupCode, prefs.lastUid === auth.uid, prefs.lastName));
+        } else if (_panelMode !== 'group') {
+          openDbEditor(panel, currentType, prefs.lastKey, prefs.lastName);
+        } else {
+          rerender();
+        }
       } else {
         rerender();
       }
-    } else {
-      rerender();
-    }
+    });
   });
+
   document.body.appendChild(panel);
   _dbPanel = panel;
   return panel;
@@ -832,16 +839,15 @@ function openNotesFor(type, name) {
   panel.style.display = '';
   document.querySelector('.tr-db-fab')?.style.setProperty('display', 'none');
 
-  panel.querySelectorAll('.tr-db-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.type === type);
+  (_prefsReady || Promise.resolve()).then(() => {
+    panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.toggle('active', t.dataset.type === type));
+    const key = dbNormKey(name);
+    if (_panelMode === 'group' && _panelGroupCode) {
+      getAuth().then(auth => openGroupEditor(panel, type, key, auth.uid, _panelGroupCode, true, name));
+    } else {
+      openDbEditor(panel, type, key, name);
+    }
   });
-
-  const key = dbNormKey(name);
-  if (_panelMode === 'group' && _panelGroupCode) {
-    getAuth().then(auth => openGroupEditor(panel, type, key, auth.uid, _panelGroupCode, true, name));
-  } else {
-    openDbEditor(panel, type, key, name);
-  }
 }
 
 function injectDbFab() {
@@ -855,8 +861,7 @@ function injectDbFab() {
     const visible = panel.style.display !== 'none';
     panel.style.display = visible ? 'none' : '';
     if (!visible) {
-      renderDbList(panel, panel.querySelector('.tr-db-tab.active').dataset.type,
-        panel.querySelector('.tr-db-search').value);
+      (_prefsReady || Promise.resolve()).then(() => panel._rerender?.());
     }
   });
   document.body.appendChild(fab);
