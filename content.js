@@ -411,7 +411,7 @@ function renderGroupList(panel, type, filter, code) {
     });
 }
 
-function openGroupEditor(panel, type, key, uid, code, editable) {
+function openGroupEditor(panel, type, key, uid, code, editable, name) {
   const ed = panel.querySelector('.tr-db-editor');
   const st = panel.querySelector('.tr-db-ed-status');
   const nameEl = panel.querySelector('.tr-db-ed-name');
@@ -422,7 +422,7 @@ function openGroupEditor(panel, type, key, uid, code, editable) {
   panel.querySelector('.tr-db-list-view').style.display = 'none';
   ed.style.display = '';
   nameEl.contentEditable = editable ? 'true' : 'false';
-  nameEl.textContent = key;
+  nameEl.textContent = name || key;
   nameEl.dataset.key = key;
   ta.value = '';
   ta.disabled = true;
@@ -434,10 +434,11 @@ function openGroupEditor(panel, type, key, uid, code, editable) {
     .then(({ url, auth }) => fetch(url))
     .then(async r => {
       const data = await r.json().catch(() => null);
-      const entry = (data && typeof data === 'object') ? data : { name: key, notes: '', updated: 0 };
+      const entry = (data && typeof data === 'object') ? data : { name: name || key, notes: '', updated: 0 };
       ta.disabled = !editable;
       st.textContent = editable ? '' : '(read-only)';
-      nameEl.textContent = entry.name || key;
+      if (entry.name === key && name) entry.name = name;
+      nameEl.textContent = entry.name || name || key;
       ta.value = entry.notes || '';
       if (!editable) return;
 
@@ -779,7 +780,7 @@ function openNotesFor(type, name) {
 
   const key = dbNormKey(name);
   if (_panelMode === 'group' && _panelGroupCode) {
-    getAuth().then(auth => openGroupEditor(panel, type, key, auth.uid, _panelGroupCode, true));
+    getAuth().then(auth => openGroupEditor(panel, type, key, auth.uid, _panelGroupCode, true, name));
   } else {
     openDbEditor(panel, type, key, name);
   }
