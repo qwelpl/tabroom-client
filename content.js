@@ -331,7 +331,6 @@ async function groupJoin(code) {
     throw new Error(d?.error || `HTTP ${r.status}`);
   }
   _panelGroupCode = code;
-  await chrome.storage.local.set({ tr_group: { code } });
 }
 
 async function groupLeave() {
@@ -340,7 +339,6 @@ async function groupLeave() {
   const url = await groupFbUrl(_panelGroupCode, 'members', auth.uid);
   await fetch(url, { method: 'DELETE' }).catch(() => {});
   _panelGroupCode = null;
-  await chrome.storage.local.remove('tr_group');
 }
 
 function groupLoadNotes(code, type, cb) {
