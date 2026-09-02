@@ -303,8 +303,9 @@ function dbDeleteEntry(type, key, cb) {
 // Data path: /groups/{code}/{type}/{noteKey}/{uid} = { name, notes, updated, authorEmail }
 // Members:   /groups/{code}/members/{uid} = { email, joinedAt }
 
-let _panelMode = 'personal'; // module-level so openNotesFor can read it
+let _panelMode = 'personal';
 let _panelGroupCode = null;
+let _panelType = 'competitors';
 
 async function groupFbUrl(...segments) {
   const auth = await getAuth();
@@ -446,6 +447,7 @@ function renderGroupList(panel, type, filter, code) {
 }
 
 function openGroupEditor(panel, type, key, uid, code, editable, name) {
+  if (editable) savePrefs({ mode: 'group', type, groupCode: code, lastKey: key, lastName: name || key, lastUid: uid });
   const ed = panel.querySelector('.tr-db-editor');
   const st = panel.querySelector('.tr-db-ed-status');
   const nameEl = panel.querySelector('.tr-db-ed-name');
@@ -558,12 +560,12 @@ function renderDbList(panel, type, filter) {
 }
 
 function openDbEditor(panel, type, key, name) {
+  savePrefs({ mode: _panelMode, type, groupCode: _panelGroupCode || null, lastKey: key, lastName: name || key, lastUid: null });
   const ed = panel.querySelector('.tr-db-editor');
   const st = panel.querySelector('.tr-db-ed-status');
   const nameEl = panel.querySelector('.tr-db-ed-name');
   const ta = panel.querySelector('.tr-db-ed-area');
 
-  // currentKey is mutable — rename updates it so ta.oninput always writes to the right path
   let currentKey = key;
 
   panel.querySelector('.tr-db-list-view').style.display = 'none';
@@ -722,7 +724,7 @@ function getOrCreateDbPanel() {
   }
 
   function saveState() {
-    savePrefs({ mode: _panelMode, type: currentType, groupCode: _panelGroupCode || null });
+    savePrefs({ mode: _panelMode, type: _panelType, groupCode: _panelGroupCode || null, lastKey: null, lastName: null, lastUid: null });
   }
 
   // Mode toggle
@@ -774,6 +776,7 @@ function getOrCreateDbPanel() {
       panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentType = tab.dataset.type;
+      _panelType = currentType;
       saveState();
       rerender();
     });
@@ -781,7 +784,7 @@ function getOrCreateDbPanel() {
 
   panel.querySelector('.tr-db-search').addEventListener('input', rerender);
 
-  panel.querySelector('.tr-db-back').addEventListener('click', rerender);
+  panel.querySelector('.tr-db-back').addEventListener('click', () => { saveState(); rerender(); });
 
   panel.querySelector('.tr-db-delete').addEventListener('click', () => {
     const key = panel.querySelector('.tr-db-ed-name').dataset.key;
@@ -804,11 +807,22 @@ function getOrCreateDbPanel() {
       }
       if (prefs.type) {
         currentType = prefs.type;
+        _panelType = prefs.type;
         panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.toggle('active', t.dataset.type === currentType));
       }
     }
     updateGroupBar();
-    rerender();
+    if (prefs?.lastKey) {
+      if (_panelMode === 'group' && _panelGroupCode && prefs.lastUid) {
+        getAuth().then(auth => openGroupEditor(panel, currentType, prefs.lastKey, prefs.lastUid, _panelGroupCode, prefs.lastUid === auth.uid, prefs.lastName));
+      } else if (_panelMode !== 'group') {
+        openDbEditor(panel, currentType, prefs.lastKey, prefs.lastName);
+      } else {
+        rerender();
+      }
+    } else {
+      rerender();
+    }
   });
   document.body.appendChild(panel);
   _dbPanel = panel;
