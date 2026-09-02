@@ -199,24 +199,30 @@ async function fbUrl(type, key) {
 }
 
 function loadPrefs(cb) {
+  console.log('[tr] loadPrefs: calling getAuth');
   getAuth()
-    .then(auth => fetch(`${FB_DB}/${auth.uid}/prefs.json?auth=${auth.token}`))
+    .then(auth => {
+      console.log('[tr] loadPrefs: auth ok, uid=', auth.uid);
+      return fetch(`${FB_DB}/${auth.uid}/prefs.json?auth=${auth.token}`);
+    })
     .then(async r => {
       const data = await r.json().catch(() => null);
       if (!r.ok) { console.error('[tr] loadPrefs failed:', data?.error || r.status); cb(null); return; }
+      console.log('[tr] loadPrefs: got data', data);
       cb(data && typeof data === 'object' ? data : null);
     })
     .catch(err => { console.error('[tr] loadPrefs error:', err); cb(null); });
 }
 
 function savePrefs(prefs) {
+  console.log('[tr] savePrefs:', prefs);
   getAuth()
     .then(auth => fetch(`${FB_DB}/${auth.uid}/prefs.json?auth=${auth.token}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(prefs)
     }))
-    .then(async r => { if (!r.ok) { const d = await r.json().catch(() => null); console.error('[tr] savePrefs failed:', d?.error || r.status); } })
+    .then(async r => { if (!r.ok) { const d = await r.json().catch(() => null); console.error('[tr] savePrefs failed:', d?.error || r.status); } else { console.log('[tr] savePrefs: ok'); } })
     .catch(err => console.error('[tr] savePrefs error:', err));
 }
 
@@ -325,6 +331,7 @@ async function groupCreate() {
 
 async function groupJoin(code) {
   const auth = await getAuth();
+  console.log('[tr] groupJoin: uid=', auth.uid, 'code=', code);
   const url = await groupFbUrl(code, 'members', auth.uid);
   const r = await fetch(url, {
     method: 'PUT',
@@ -333,8 +340,10 @@ async function groupJoin(code) {
   });
   if (!r.ok) {
     const d = await r.json().catch(() => ({}));
+    console.error('[tr] groupJoin failed:', d?.error || r.status);
     throw new Error(d?.error || `HTTP ${r.status}`);
   }
+  console.log('[tr] groupJoin: success, _panelGroupCode=', code);
   _panelGroupCode = code;
 }
 
