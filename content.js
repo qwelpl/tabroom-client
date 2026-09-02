@@ -624,7 +624,6 @@ function getOrCreateDbPanel() {
       </div>
       <button class="tr-db-close" title="Close">×</button>
     </div>
-    <div class="tr-db-sync-info">Syncing as: <span class="tr-db-email-key"></span></div>
     <div class="tr-db-group-bar" style="display:none">
       <div class="tr-db-group-no-group">
         <input class="tr-db-group-input" placeholder="Enter code…" maxlength="10" />
@@ -652,10 +651,7 @@ function getOrCreateDbPanel() {
     </div>
   `;
 
-  const emailKeyEl = panel.querySelector('.tr-db-email-key');
-  emailKeyEl.textContent = detectEmail() || 'detecting…';
-  getAuth().then(auth => { emailKeyEl.textContent = auth.email; })
-           .catch(err => { emailKeyEl.textContent = `Error: ${err.message}`; });
+  getAuth().catch(() => {});
 
   let currentType = 'competitors';
 

@@ -1406,13 +1406,6 @@ body table tr.tr-bye-row.even:hover td {
   background: #fef2f2;
   border-bottom: 1px solid #fca5a5;
 }
-.tr-db-sync-info {
-  padding: 4px 14px;
-  font-size: 11px;
-  color: var(--t-muted);
-  background: var(--t-border-faint);
-  border-bottom: 1px solid var(--t-border);
-}
 .tr-db-editor {
   display: flex;
   flex-direction: column;
