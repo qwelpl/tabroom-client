@@ -1519,6 +1519,12 @@ body table tr.tr-bye-row.even:hover td {
   width: auto !important;
   line-height: 1.4 !important;
 }
+.tr-opp-note-btn--group {
+  background: var(--t-blue-bg) !important;
+  border-color: var(--t-accent) !important;
+  color: var(--t-accent) !important;
+  opacity: 0.85;
+}
 .tr-opp-note-btn:hover {
   opacity: 1;
   color: var(--t-accent) !important;

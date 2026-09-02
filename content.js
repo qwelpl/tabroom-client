@@ -702,6 +702,7 @@ function getOrCreateDbPanel() {
       btn.classList.add('active');
       _panelMode = btn.dataset.mode;
       updateGroupBar();
+      updateNoteButtons();
       rerender();
     });
   });
@@ -802,6 +803,18 @@ function injectDbFab() {
   document.body.appendChild(fab);
 }
 
+function updateNoteButtonLabel(btn) {
+  const type = btn.dataset.noteType || 'competitors';
+  const typeLabel = type === 'judges' ? 'J' : 'C';
+  const modeLabel = _panelMode === 'group' ? 'G' : 'M';
+  btn.textContent = `${modeLabel}·${typeLabel}`;
+  btn.classList.toggle('tr-opp-note-btn--group', _panelMode === 'group');
+}
+
+function updateNoteButtons() {
+  document.querySelectorAll('.tr-opp-note-btn').forEach(updateNoteButtonLabel);
+}
+
 function injectOppNoteButtons() {
   if (!/\/user\/student\//i.test(location.pathname)) return;
 
@@ -820,8 +833,9 @@ function injectOppNoteButtons() {
 
       const btn = document.createElement('button');
       btn.className = 'tr-opp-note-btn';
+      btn.dataset.noteType = 'competitors';
       btn.title = `Notes for ${name}`;
-      btn.textContent = '+';
+      updateNoteButtonLabel(btn);
       btn.addEventListener('click', e => {
         e.stopPropagation();
         openNotesFor('competitors', name);
