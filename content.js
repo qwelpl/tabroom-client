@@ -703,10 +703,9 @@ function getOrCreateDbPanel() {
     }
   }
 
-  // Load saved group
-  chrome.storage.local.get('tr_group', ({ tr_group }) => {
-    if (tr_group?.code) _panelGroupCode = tr_group.code;
-  });
+  function saveState() {
+    chrome.storage.sync.set({ tr_panel_state: { mode: _panelMode, type: currentType, groupCode: _panelGroupCode } });
+  }
 
   // Mode toggle
   panel.querySelectorAll('.tr-db-mode').forEach(btn => {
@@ -716,6 +715,7 @@ function getOrCreateDbPanel() {
       _panelMode = btn.dataset.mode;
       updateGroupBar();
       updateNoteButtons();
+      saveState();
       rerender();
     });
   });
@@ -727,7 +727,7 @@ function getOrCreateDbPanel() {
     const st = panel.querySelector('.tr-db-list');
     st.innerHTML = `<div class="tr-db-empty">Joining…</div>`;
     groupJoin(code)
-      .then(() => { updateGroupBar(); rerender(); })
+      .then(() => { updateGroupBar(); saveState(); rerender(); })
       .catch(err => { st.innerHTML = `<div class="tr-db-error">Join failed: ${err.message}</div>`; });
   });
 
@@ -736,7 +736,7 @@ function getOrCreateDbPanel() {
     const st = panel.querySelector('.tr-db-list');
     st.innerHTML = `<div class="tr-db-empty">Creating…</div>`;
     groupCreate()
-      .then(() => { updateGroupBar(); rerender(); })
+      .then(() => { updateGroupBar(); saveState(); rerender(); })
       .catch(err => { st.innerHTML = `<div class="tr-db-error">Create failed: ${err.message}</div>`; });
   });
 
@@ -747,7 +747,7 @@ function getOrCreateDbPanel() {
 
   // Group leave
   panel.querySelector('.tr-db-group-leave-btn').addEventListener('click', () => {
-    groupLeave().then(() => { updateGroupBar(); rerender(); });
+    groupLeave().then(() => { updateGroupBar(); saveState(); rerender(); });
   });
 
   // Tabs
@@ -756,6 +756,7 @@ function getOrCreateDbPanel() {
       panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentType = tab.dataset.type;
+      saveState();
       rerender();
     });
   });
@@ -775,7 +776,22 @@ function getOrCreateDbPanel() {
     document.querySelector('.tr-db-fab')?.style.removeProperty('display');
   });
 
-  rerender();
+  chrome.storage.sync.get('tr_panel_state', ({ tr_panel_state }) => {
+    if (tr_panel_state) {
+      if (tr_panel_state.groupCode) _panelGroupCode = tr_panel_state.groupCode;
+      if (tr_panel_state.mode) {
+        _panelMode = tr_panel_state.mode;
+        panel.querySelectorAll('.tr-db-mode').forEach(b => b.classList.toggle('active', b.dataset.mode === _panelMode));
+        updateNoteButtons();
+      }
+      if (tr_panel_state.type) {
+        currentType = tr_panel_state.type;
+        panel.querySelectorAll('.tr-db-tab').forEach(t => t.classList.toggle('active', t.dataset.type === currentType));
+      }
+    }
+    updateGroupBar();
+    rerender();
+  });
   document.body.appendChild(panel);
   _dbPanel = panel;
   return panel;
