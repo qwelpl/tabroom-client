@@ -373,7 +373,7 @@ function groupDeleteNote(code, type, key, uid, cb) {
 function renderGroupList(panel, type, filter, code) {
   const list = panel.querySelector('.tr-db-list');
   list.innerHTML = `<div class="tr-db-empty">Loading…</div>`;
-  Promise.all([getAuth(), new Promise(res => groupLoadNotes(code, type, res))])
+  Promise.all([getAuth(), new Promise(res => groupLoadNotes(code, type, (db, err) => res([db, err])))])
     .then(([auth, [db, err]]) => {
       if (err) {
         list.innerHTML = `<div class="tr-db-error">Group error: ${err}</div>`;
