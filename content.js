@@ -878,28 +878,32 @@ function injectOppNoteButtons() {
 
   document.querySelectorAll('table').forEach(table => {
     const headers = [...table.querySelectorAll('tr:first-child th, tr:first-child td')];
-    const oppIdx = headers.findIndex(th => /^opp/i.test(th.textContent.trim()));
-    if (oppIdx === -1) return;
 
-    table.querySelectorAll('tr').forEach(row => {
-      const cells = row.querySelectorAll('td');
-      if (!cells.length || !cells[oppIdx]) return;
-      const cell = cells[oppIdx];
-      if (cell.querySelector('.tr-opp-note-btn')) return;
-      const name = cell.textContent.trim();
-      if (!name || /BYE/i.test(name)) return;
+    const injectCol = (colIdx, noteType) => {
+      if (colIdx === -1) return;
+      table.querySelectorAll('tr').forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (!cells.length || !cells[colIdx]) return;
+        const cell = cells[colIdx];
+        if (cell.querySelector('.tr-opp-note-btn')) return;
+        const name = cell.textContent.trim();
+        if (!name || /BYE/i.test(name)) return;
 
-      const btn = document.createElement('button');
-      btn.className = 'tr-opp-note-btn';
-      btn.dataset.noteType = 'competitors';
-      btn.title = `Notes for ${name}`;
-      updateNoteButtonLabel(btn);
-      btn.addEventListener('click', e => {
-        e.stopPropagation();
-        openNotesFor('competitors', name);
+        const btn = document.createElement('button');
+        btn.className = 'tr-opp-note-btn';
+        btn.dataset.noteType = noteType;
+        btn.title = `Notes for ${name}`;
+        updateNoteButtonLabel(btn);
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          openNotesFor(noteType, name);
+        });
+        cell.appendChild(btn);
       });
-      cell.appendChild(btn);
-    });
+    };
+
+    injectCol(headers.findIndex(th => /^opp/i.test(th.textContent.trim())), 'competitors');
+    injectCol(headers.findIndex(th => /^judge/i.test(th.textContent.trim())), 'judges');
   });
 }
 
