@@ -201,9 +201,12 @@ async function fbUrl(type, key) {
 function loadPrefs(cb) {
   getAuth()
     .then(auth => fetch(`${FB_DB}/${auth.uid}/prefs.json?auth=${auth.token}`))
-    .then(r => r.json().catch(() => null))
-    .then(data => cb(data && typeof data === 'object' ? data : null))
-    .catch(() => cb(null));
+    .then(async r => {
+      const data = await r.json().catch(() => null);
+      if (!r.ok) { console.error('[tr] loadPrefs failed:', data?.error || r.status); cb(null); return; }
+      cb(data && typeof data === 'object' ? data : null);
+    })
+    .catch(err => { console.error('[tr] loadPrefs error:', err); cb(null); });
 }
 
 function savePrefs(prefs) {
@@ -213,7 +216,8 @@ function savePrefs(prefs) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(prefs)
     }))
-    .catch(() => {});
+    .then(async r => { if (!r.ok) { const d = await r.json().catch(() => null); console.error('[tr] savePrefs failed:', d?.error || r.status); } })
+    .catch(err => console.error('[tr] savePrefs error:', err));
 }
 
 function migrateOldNotes() {
