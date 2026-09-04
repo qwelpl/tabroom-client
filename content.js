@@ -323,10 +323,10 @@ async function groupFbUrl(...segments) {
   return `${FB_DB}/groups/${segments.join('/')}.json?auth=${auth.token}`;
 }
 
-async function groupCreate() {
-  const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-  await groupJoin(code);
-  return code;
+async function groupCreate(code) {
+  const finalCode = (code || Math.random().toString(36).substring(2, 8)).toUpperCase();
+  await groupJoin(finalCode);
+  return finalCode;
 }
 
 async function groupJoin(code) {
@@ -674,7 +674,7 @@ function getOrCreateDbPanel() {
     </div>
     <div class="tr-db-group-bar" style="display:none">
       <div class="tr-db-group-no-group">
-        <input class="tr-db-group-input" placeholder="Enter code…" maxlength="10" />
+        <input class="tr-db-group-input" placeholder="Code (join or create)…" maxlength="10" />
         <button class="tr-db-group-join-btn">Join</button>
         <button class="tr-db-group-create-btn">New</button>
       </div>
@@ -765,10 +765,12 @@ function getOrCreateDbPanel() {
 
   // Group create
   panel.querySelector('.tr-db-group-create-btn').addEventListener('click', () => {
+    const input = panel.querySelector('.tr-db-group-input');
+    const customCode = input.value.trim();
     const st = panel.querySelector('.tr-db-list');
     st.innerHTML = `<div class="tr-db-empty">Creating…</div>`;
-    groupCreate()
-      .then(() => { updateGroupBar(); saveState(); rerender(); })
+    groupCreate(customCode || null)
+      .then(() => { input.value = ''; updateGroupBar(); saveState(); rerender(); })
       .catch(err => { st.innerHTML = `<div class="tr-db-error">Create failed: ${err.message}</div>`; });
   });
 
